@@ -44,7 +44,7 @@ type Measurement struct {
 	Label       string
 	Aggregation string
 	Unit        string
-	Depth       int64
+	Depth       *int64
 	Station     *Station
 	Points      []*Point
 }
@@ -251,3 +251,7 @@ func UserFromContext(ctx context.Context) *User {
 	}
 	return user
 }
+
+// Int64 is a helper routine that allocates a new int64 value
+// to store v and returns a pointer to it.
+func Int64(v int64) *int64 { return &v }

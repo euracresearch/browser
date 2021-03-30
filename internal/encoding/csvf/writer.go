@@ -23,7 +23,7 @@
 //      ...
 //
 // For more information see:
-// https://github.com/euracresearch/browser/-/issues/90
+// https://gitlab.inf.unibz.it/lter/browser/-/issues/90
 package csvf
 
 import (
@@ -153,17 +153,17 @@ func (w *Writer) appendToRow(row int, data string) {
 // name removes the depth and aggregation from the raw label.
 func name(m *browser.Measurement) string {
 	// Remove depth from the label if the measurement has a depth.
-	if m.Depth > 0 {
+	if m.Depth != nil {
 		return strings.ReplaceAll(m.Label, fmt.Sprintf("_%02d_%s", m.Depth, m.Aggregation), "")
 	}
 	return strings.ReplaceAll(m.Label, "_"+m.Aggregation, "")
 }
 
 // depth will return the depth as string.
-func depth(d int64) string {
-	if d == 0 {
+func depth(d *int64) string {
+	if d == nil {
 		return ""
 	}
 
-	return strconv.FormatInt(d, 10)
+	return strconv.FormatInt(*d, 10)
 }
