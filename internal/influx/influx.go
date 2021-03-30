@@ -290,12 +290,14 @@ func (db *DB) Series(ctx context.Context, filter *browser.SeriesFilter) (browser
 				}
 
 				if value[5] == nil {
-					m.Depth = 0
+					m.Depth = nil
 				} else {
-					m.Depth, err = value[5].(json.Number).Int64()
+					d, err := value[5].(json.Number).Int64()
 					if err != nil {
-						m.Depth = -1
+						m.Depth = nil
 					}
+
+					m.Depth = browser.Int64(d)
 				}
 				p := &browser.Point{
 					Timestamp: t,
