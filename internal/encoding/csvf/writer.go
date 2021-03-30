@@ -152,11 +152,14 @@ func (w *Writer) appendToRow(row int, data string) {
 
 // name removes the depth and aggregation from the raw label.
 func name(m *browser.Measurement) string {
+	name := strings.TrimSuffix(m.Label, fmt.Sprintf("_%s", m.Aggregation))
+
 	// Remove depth from the label if the measurement has a depth.
 	if m.Depth != nil {
-		return strings.ReplaceAll(m.Label, fmt.Sprintf("_%02d_%s", m.Depth, m.Aggregation), "")
+		return strings.ReplaceAll(name, fmt.Sprintf("_%02d", *m.Depth), "")
 	}
-	return strings.ReplaceAll(m.Label, "_"+m.Aggregation, "")
+
+	return name
 }
 
 // depth will return the depth as string.
