@@ -595,16 +595,41 @@
                             .removeClass(this.options.selectedClass);
                     }
                 }
+                
+                if ($target.closest('li').hasClass('multiselect-child')) {
+                    var all = 0;
+                    var selected = 0;
+                    var parentID = $target.closest('li').attr("data-parent");
+                    var chkBox = $('#'+parentID+' > input')
+
+                    $('#'+parentID).nextUntil("li.multiselect-parent").each(function() {
+                        all += 1;
+                        if ($(this).hasClass('active')) {
+                            selected += 1;
+                        } 
+                    });
+                    
+                    if (selected == 0) {
+                        chkBox.prop('indeterminate', false);
+                        $('#'+parentID).css('background', '#ffffff');
+                    } else if (selected == all) {
+                        chkBox.prop('indeterminate', false);
+                        chkBox.prop('checked', true);
+                        $('#'+parentID).css('background', '#337ab7');
+                    } else {
+                        chkBox.prop('indeterminate', true);
+                        $('#'+parentID).css('background', '#f3f3f3');
+                    }
+                }
 
                 // Get the corresponding option.
                 var value = $target.val();
                 var $option = this.getOptionByValue(value);
-
+                
                 var $optionsNotThis = $('option', this.$select).not($option);
                 var $checkboxesNotThis = $('input', this.$container).not($target);
 
                 if (isSelectAllOption) {
-
                     if (checked) {
                         this.selectAll(this.options.selectAllJustVisible, true);
                     }
@@ -870,7 +895,7 @@
          *
          * @param {jQuery} element
          */
-        createOptionValue: function(element, elClass) {
+        createOptionValue: function(element, elClass, parentID) {
             var $element = $(element);
             if ($element.is(':selected')) {
                 $element.prop('selected', true);
@@ -888,6 +913,9 @@
             $label.attr("title", label);
             $li.addClass(classes);
 			$li.addClass(elClass);
+            if (parentID != "") {
+                $li.attr("data-parent", parentID);
+            }
 
             // Hide all children items when collapseOptGroupsByDefault is true
             if (this.options.collapseOptGroupsByDefault && $(element).parent().prop("tagName").toLowerCase() === "optgroup") {
@@ -960,7 +988,9 @@
             var label = $(group).attr("label");
             var value = $(group).attr("value");
             var $li = $('<li class="multiselect-item multiselect-group multiselect-parent multiselect-parent-with-childs"><a href="javascript:void(0);"><label></label></a></li>');
-
+            var id = "p" + value;
+            $li.attr("id", id);
+            
             var classes = this.options.optionClass(group);
             $li.addClass(classes);
 
@@ -986,7 +1016,7 @@
             this.$ul.append($li);
 
             $("option", group).each($.proxy(function($, group) {
-                this.createOptionValue(group, "multiselect-child");
+                this.createOptionValue(group, "multiselect-child", id);
             }, this))
 
         },

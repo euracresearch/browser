@@ -46,6 +46,7 @@ body {
 
 .dropdown-menu>li.multiselect-parent-with-childs>a {
 	display: inline;
+	background:none;
 }
 
 .dropdown-menu>li.multiselect-parent-with-childs.active {
