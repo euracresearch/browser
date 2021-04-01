@@ -286,6 +286,7 @@ function browser(opts) {
 		enableRegexFiltering: true,
 		enableCaseInsensitiveFiltering: true,
 		includeSelectAllOption: false,
+		includeSelectAllOption: true,
 		onChange: function() {
 			toggleDownload();
 		},
