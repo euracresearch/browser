@@ -234,6 +234,7 @@ function browser(opts) {
 
 	// Initialize UI elements
 	$(opts.measurementEl).multiselect({
+		maxHeight: 400,
 		buttonWidth: "100%",
 		enableFiltering: true,
 		filterBehavior: "both",
