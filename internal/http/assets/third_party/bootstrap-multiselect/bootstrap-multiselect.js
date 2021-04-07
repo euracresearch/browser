@@ -1090,7 +1090,7 @@
                 var $checkbox = $('input', $li);
                 $checkbox.val(this.options.selectAllValue);
 
-                $li.addClass("multiselect-item multiselect-all");
+                $li.addClass("multiselect-parent");
                 $checkbox.parent().parent()
                     .addClass('multiselect-all');
 
@@ -1434,11 +1434,10 @@
          * @param {Boolean} triggerOnSelectAll
          */
         selectAll: function (justVisible, triggerOnSelectAll) {
-
             var justVisible = typeof justVisible === 'undefined' ? true : justVisible;
             var allLis = $("li:not(.divider):not(.disabled):not(.multiselect-group)", this.$ul);
             var visibleLis = $("li:not(.divider):not(.disabled):not(.multiselect-group):not(.multiselect-filter-hidden):not(.multiselect-collapisble-hidden)", this.$ul).filter(':visible');
-
+        
             if(justVisible) {
                 $('input:enabled' , visibleLis).prop('checked', true);
                 visibleLis.addClass(this.options.selectedClass);

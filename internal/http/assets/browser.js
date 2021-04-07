@@ -245,6 +245,8 @@ function browser(opts) {
 		enableCollapsibleOptGroups: true,
 		collapseOptGroupsByDefault: true,
 		indentGroupOptions: true,
+		includeSelectAllOption: true,
+		selectAllJustVisible: false,
 		onChange: function() {
 			handleUpdate();
 		},
@@ -286,7 +288,6 @@ function browser(opts) {
 		filterBehavior: "both",
 		enableRegexFiltering: true,
 		enableCaseInsensitiveFiltering: true,
-		includeSelectAllOption: false,
 		includeSelectAllOption: true,
 		onChange: function() {
 			toggleDownload();
