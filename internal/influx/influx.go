@@ -94,8 +94,8 @@ var (
 		browser.ShortWaveRadiationOutgoing:                   regexp.MustCompile(`^.*_dn.*_sw_.*$`),
 		browser.ShortWaveRadiationIncoming:                   regexp.MustCompile(`^(sr_.*|.*_up.*_sw_.*)$`),
 		browser.LongWaveRadiation:                            regexp.MustCompile(`.*_lw_.*$`),
-		browser.LongWaveRadiationIncoming:                    regexp.MustCompile(`.*_dn.*_lw_.*$`),
-		browser.LongWaveRadiationOutgoing:                    regexp.MustCompile(`.*_up.*_lw_.*$`),
+		browser.LongWaveRadiationOutgoing:                    regexp.MustCompile(`.*_dn.*_lw_.*$`),
+		browser.LongWaveRadiationIncoming:                    regexp.MustCompile(`.*_up.*_lw_.*$`),
 	}
 )
 
