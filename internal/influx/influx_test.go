@@ -329,7 +329,7 @@ func TestGroupsByStation(t *testing.T) {
 		want := []browser.Group{
 			browser.RelativeHumidity,
 			browser.AirTemperature,
-			browser.ShortWaveRadiationOutgoing,
+			browser.ShortWaveRadiationIncoming,
 			browser.PrecipitationTotal,
 			browser.SnowHeight,
 			browser.WindDirection,

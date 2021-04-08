@@ -6,15 +6,21 @@ package influx
 
 // publicAllowed is the list of allowed measurements for the public role.
 var publicAllowed = []string{
-	"air_t_avg",
-	"air_rh_avg",
-	"wind_dir",
-	"wind_speed",
-	"wind_speed_avg",
-	"wind_speed_max",
-	"nr_up_sw_avg",
-	"precip_rt_nrt_tot",
-	"snow_height",
+	"Air_RH_Avg",
+	"Air_T_Avg",
+	"Wind_Speed_Avg",
+	"Wind_Speed_Max",
+	"Wind_Dir",
+	"Wind_Speed",
+	"NR_Up_SW_Avg",
+	"SR_Avg",
+	"Precip_Tot",
+	"Precip_CS_Tot",
+	"Precip_A_Tot",
+	"Precip_C_Tot",
+	"Precip_RT_NRT_Tot",
+	"Snow_Height",
+	"Snow_Height_Avg",
 }
 
 // maintenace is a list of measurement names only intressting for technicians.

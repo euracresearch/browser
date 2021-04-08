@@ -158,7 +158,7 @@ func (g Group) Public() string {
 		return "Wind Speed Max"
 	case WindDirection:
 		return "Wind Direction"
-	case ShortWaveRadiationOutgoing:
+	case ShortWaveRadiationIncoming:
 		return "Global Radiation"
 	case PrecipitationTotal:
 		return "Precipitation"
@@ -324,7 +324,7 @@ func GroupsByRole(r Role) []Group {
 			WindDirection,
 			WindSpeed,
 			WindSpeedMax,
-			ShortWaveRadiationOutgoing,
+			ShortWaveRadiationIncoming,
 			PrecipitationTotal,
 			SnowHeight,
 		}
