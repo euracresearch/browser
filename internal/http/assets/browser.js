@@ -48,8 +48,8 @@ function browser(opts) {
 		const map = L.map(opts.mapEl, {zoomControl: false}).setView([46.69765764825818, 10.638368502259254], 13);
 
 		const basemap = {
-		"Orthophotos South Tyrol (2014/2015/2017)": L.tileLayer.wms('https://geoservices.buergernetz.bz.it/geoserver/ows?', {
-			layers: 'P_BZ_OF_2014_2015_2017',
+		"Orthophotos South Tyrol (2020)": L.tileLayer.wms('https://geoservices.buergernetz.bz.it/geoserver/ows?', {
+			layers: 'p_bz-orthoimagery:P_BZ_OF_2020',
 			attribution: 'Map data &copy; <a href="http://geoportal.buergernetz.bz.it/geodaten.asp">Geoportal Südtirol</a>, <a href="https://creativecommons.org/publicdomain/zero/1.0/deed.en">CC-0</a>'
 		}).addTo(map),
 
@@ -126,7 +126,7 @@ function browser(opts) {
 			$(opts.submitEl).attr("disabled", "disabled");
 			$(opts.codeEl).attr("disabled", "disabled");
 			return
-		} 
+		}
 
 		$(opts.submitEl).removeAttr("disabled");
 		$(opts.codeEl).removeAttr("disabled");
@@ -266,7 +266,7 @@ function browser(opts) {
 		if ($(opts.maintenanceEl).length <= 0) {
 			return
 		}
-		
+
 		stdMaintOptions = [];
 		$(opts.maintenanceEl).children('option').map(function() {
 			let el = $(this);
@@ -318,14 +318,14 @@ function browser(opts) {
 		}
 		$(opts.maintenanceEl).multiselect("rebuild");
 	});
-	
+
 	$('#maintCheckbox').on('change', function() {
 		if (this.checked) {
 			$(opts.maintFormGroupEl).show()
 		} else {
 			$('option', $(opts.maintenanceEl)).each(function(element) {
                $(this).removeAttr('selected').prop('selected', false);
-				
+
             });
 			$(opts.maintenanceEl).multiselect('refresh');
 			$(opts.maintFormGroupEl).hide();
