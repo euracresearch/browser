@@ -160,10 +160,6 @@ func (c *Cookie) validateJWT(token string) (*browser.User, error) {
 		return nil, ErrTokenInvalid
 	}
 
-	//if !cl.VerifyIssuer(DefaultJWTIssuer, true) {
-	//	return nil, ErrTokenInvalid
-	//}
-
 	if cl.RegisteredClaims.Issuer != DefaultJWTIssuer {
 		return nil, ErrTokenInvalid
 	}
