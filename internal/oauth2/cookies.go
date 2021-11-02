@@ -12,8 +12,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/euracresearch/browser"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/securecookie"
 )
 
@@ -103,7 +103,7 @@ func (c *Cookie) Validate(ctx context.Context, r *http.Request) (*browser.User, 
 
 type claims struct {
 	User *browser.User
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 // newJWT creates a new signed JWT token with the given user information
@@ -123,12 +123,12 @@ func (c *Cookie) newJWT(u *browser.User) (string, error) {
 
 	cl := claims{
 		u,
-		jwt.StandardClaims{
+		jwt.RegisteredClaims{
 			Issuer:    DefaultJWTIssuer,
-			IssuedAt:  date.Unix(),
-			Id:        id,
-			NotBefore: date.Unix(),
-			ExpiresAt: exp.Unix(),
+			IssuedAt:  jwt.NewNumericDate(date),
+			ID:        id,
+			NotBefore: jwt.NewNumericDate(date),
+			ExpiresAt: jwt.NewNumericDate(exp),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, cl)
@@ -160,7 +160,11 @@ func (c *Cookie) validateJWT(token string) (*browser.User, error) {
 		return nil, ErrTokenInvalid
 	}
 
-	if !cl.VerifyIssuer(DefaultJWTIssuer, true) {
+	//if !cl.VerifyIssuer(DefaultJWTIssuer, true) {
+	//	return nil, ErrTokenInvalid
+	//}
+
+	if cl.RegisteredClaims.Issuer != DefaultJWTIssuer {
 		return nil, ErrTokenInvalid
 	}
 
