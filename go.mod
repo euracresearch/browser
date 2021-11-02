@@ -5,8 +5,8 @@ go 1.16
 require (
 	github.com/coreos/go-oidc v2.1.0+incompatible
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/euracresearch/go-snipeit v0.0.0-20210129072900-94012b727361
+	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/google/go-cmp v0.4.0
 	github.com/google/go-github/v32 v32.1.0
 	github.com/gorilla/securecookie v1.1.1
