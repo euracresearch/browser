@@ -3,7 +3,7 @@ on:
     types:
       - created
 
-name: release
+name: Create binary release and debian packages
 jobs:
   linux:
     runs-on: ubuntu-latest
