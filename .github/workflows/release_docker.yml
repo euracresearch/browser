@@ -26,7 +26,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          build-args: browser_ref=${{ steps.release.outputs.tag_name }},browser_sha=$(git rev-parse HEAD)
+          build-args: browser_ref=${{ github.ref_name }},browser_sha=${{ github.sha }}
           context: .
           push: true
-          tags: euracresearch/browser:${{ steps.release.outputs.tag_name }}
+          tags: euracresearch/browser:${{ github.ref_name }}
