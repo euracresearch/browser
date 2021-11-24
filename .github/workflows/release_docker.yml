@@ -1,9 +1,12 @@
 name: Create and publish a Docker image
 
 on:
-  release:
-    types:
-      - created
+  push:
+    tags:
+      - '*'
+        #release:
+        # types:
+        #- unpublished 
 
 jobs:
   build-and-push-image:
@@ -21,7 +24,7 @@ jobs:
         with:
           registry: ghcr.io
           username: euracresearch
-          password: ${{ secrets.PACKAGE_TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
@@ -29,4 +32,4 @@ jobs:
           build-args: browser_ref=${{ github.ref_name }},browser_sha=${{ github.sha }}
           context: .
           push: true
-          tags: euracresearch/browser:${{ github.ref_name }}
+          tags: ghcr.io/euracresearch/browser:${{ github.ref_name }}
