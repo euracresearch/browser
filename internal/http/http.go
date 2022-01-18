@@ -21,10 +21,11 @@ func ListenAndServe(addr string, handler http.Handler) error {
 	return http.ListenAndServe(addr, handler)
 }
 
-// ServeAutoCert will serve on the standard TLS port (443) with LetsEncrypt
-// certificates for the provided domain or domains. Incoming traffic on port 80
-// will be automatically forwared to 443.
-func ServeAutoCert(addr string, handler http.Handler, domains ...string) error {
+// ServeAutoCert will serve on the standard TLS port (443) with
+// LetsEncrypt certificates for the provided domain or domains.
+// Certificates will be stored in the given cache directory. Incoming
+// traffic on port 80 will be automatically forwared to 443.
+func ServeAutoCert(addr string, handler http.Handler, cache string, domains ...string) error {
 	go func() {
 		host, _, err := net.SplitHostPort(addr)
 		if err != nil || host == "" {
@@ -34,7 +35,18 @@ func ServeAutoCert(addr string, handler http.Handler, domains ...string) error {
 		log.Fatal(http.ListenAndServe(host+":80", redirectHandler()))
 	}()
 
-	return http.Serve(autocert.NewListener(domains...), handler)
+	m := &autocert.Manager{
+		Cache:      autocert.DirCache(cache),
+		Prompt:     autocert.AcceptTOS,
+		HostPolicy: autocert.HostWhitelist(domains...),
+	}
+	s := &http.Server{
+		Addr:      addr,
+		Handler:   handler,
+		TLSConfig: m.TLSConfig(),
+	}
+
+	return s.ListenAndServeTLS("", "")
 }
 
 func redirectHandler() http.Handler {
