@@ -40,6 +40,7 @@ func main() {
 		listenAddr        = fs.String("listen", defaultAddr, "Server listen address.")
 		https             = fs.Bool("https", false, "Serve HTTPS.")
 		domain            = fs.String("domain", "", "Domain used for getting LetsEncrypt certificate.")
+		cacheDir          = fs.String("cache", "", "Directory for storing LetsEncrypt certificates.")
 		influxAddr        = fs.String("influx.addr", "http://127.0.0.1:8086", "Influx (http:https)://host:port")
 		influxUser        = fs.String("influx.username", "", "Influx username")
 		influxPass        = fs.String("influx.password", "", "Influx password")
@@ -162,7 +163,8 @@ func main() {
 
 	log.Printf("Starting server on %s\n", *listenAddr)
 	if *https && *domain != "" {
-		log.Fatal(http.ServeAutoCert(*listenAddr, mw(handler), *domain))
+		required("cache", *cacheDir)
+		log.Fatal(http.ServeAutoCert(*listenAddr, mw(handler), *cacheDir, *domain))
 	}
 
 	log.Fatal(http.ListenAndServe(*listenAddr, mw(handler)))
