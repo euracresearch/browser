@@ -42,12 +42,13 @@ func ServeAutoCert(addr string, handler http.Handler, cache string, domains ...s
 		HostPolicy: autocert.HostWhitelist(domains...),
 	}
 
-	m.TLSConfig().MinVersion = tls.VersionTLS12
-	m.TLSConfig().CurvePreferences = []tls.CurveID{
+	tlsConfig := m.TLSConfig()
+	tlsConfig.MinVersion = tls.VersionTLS12
+	tlsConfig.CurvePreferences = []tls.CurveID{
 		tls.CurveP256,
 		tls.X25519, // Go 1.8 only
 	}
-	m.TLSConfig().CipherSuites = []uint16{
+	tlsConfig.CipherSuites = []uint16{
 		tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
 		tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 		tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305, // Go 1.8 only
@@ -59,7 +60,7 @@ func ServeAutoCert(addr string, handler http.Handler, cache string, domains ...s
 	s := &http.Server{
 		Addr:      addr,
 		Handler:   handler,
-		TLSConfig: m.TLSConfig(),
+		TLSConfig: tlsConfig,
 	}
 
 	return s.ListenAndServeTLS("", "")
