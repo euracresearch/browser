@@ -43,6 +43,8 @@ func SecureHeaders() Middleware {
 			w.Header().Set("X-Content-Type-Options", "nosniff")
 			// Block cross-site scripting attacks.
 			w.Header().Set("X-XSS-Protection", "1; mode=block")
+			// Clients should automatically interact with HTTPS only connections.
+			w.Header().Set("Strict-Transport-Security", "max-age=63072000")
 
 			h.ServeHTTP(w, r)
 		})
