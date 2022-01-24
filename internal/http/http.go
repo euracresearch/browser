@@ -6,6 +6,7 @@
 package http
 
 import (
+	"crypto/tls"
 	"log"
 	"net"
 	"net/http"
@@ -40,6 +41,21 @@ func ServeAutoCert(addr string, handler http.Handler, cache string, domains ...s
 		Prompt:     autocert.AcceptTOS,
 		HostPolicy: autocert.HostWhitelist(domains...),
 	}
+
+	m.TLSConfig().MinVersion = tls.VersionTLS12
+	m.TLSConfig().CurvePreferences = []tls.CurveID{
+		tls.CurveP256,
+		tls.X25519, // Go 1.8 only
+	}
+	m.TLSConfig().CipherSuites = []uint16{
+		tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+		tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+		tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305, // Go 1.8 only
+		tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,   // Go 1.8 only
+		tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+		tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+	}
+
 	s := &http.Server{
 		Addr:      addr,
 		Handler:   handler,
