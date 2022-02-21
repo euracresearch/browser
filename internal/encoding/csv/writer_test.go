@@ -5,6 +5,7 @@
 package csv
 
 import (
+	"math"
 	"strings"
 	"testing"
 	"time"
@@ -363,6 +364,55 @@ func TestWrite(t *testing.T) {
 2020-01-01 00:30:00,s2,me_s2,50,3,2,NaN,NaN,10
 2020-01-01 00:45:00,s2,me_s2,50,3,2,NaN,NaN,22
 2020-01-01 01:00:00,s2,me_s2,50,3,2,NaN,NaN,66
+`,
+		},
+		"gl_issue_125": {
+			browser.TimeSeries{
+				&browser.Measurement{
+					Label: "a_avg",
+					Station: &browser.Station{
+						Name:      "s1",
+						Landuse:   "me_s1",
+						Elevation: 1000,
+						Latitude:  3.14159,
+						Longitude: 2.71828,
+					},
+					Unit: "c",
+					Points: []*browser.Point{
+						testPoint("2020-01-01T00:15:00+01:00", 1),
+						testPoint("2020-01-01T00:30:00+01:00", 2),
+						testPoint("2020-01-01T00:45:00+01:00", 3),
+						testPoint("2020-01-01T01:00:00+01:00", 4),
+					},
+				},
+				&browser.Measurement{
+					Label: "a_avg",
+					Unit:  "c/15",
+					Station: &browser.Station{
+						Name:      "s1",
+						Landuse:   "me_s1",
+						Elevation: 1000,
+						Latitude:  3.14159,
+						Longitude: 2.71828,
+					},
+					Points: []*browser.Point{
+						testPoint("2020-01-01T00:15:00+01:00", math.NaN()),
+						testPoint("2020-01-01T00:30:00+01:00", math.NaN()),
+						testPoint("2020-01-01T00:45:00+01:00", math.NaN()),
+						testPoint("2020-01-01T01:00:00+01:00", math.NaN()),
+						testPoint("2020-01-01T01:15:00+01:00", 5),
+						testPoint("2020-01-01T01:30:00+01:00", 6),
+					},
+				},
+			},
+			`time,station,landuse,elevation,latitude,longitude,a_avg
+,,,,,,c
+2020-01-01 00:15:00,s1,me_s1,1000,3.14159,2.71828,1
+2020-01-01 00:30:00,s1,me_s1,1000,3.14159,2.71828,2
+2020-01-01 00:45:00,s1,me_s1,1000,3.14159,2.71828,3
+2020-01-01 01:00:00,s1,me_s1,1000,3.14159,2.71828,4
+2020-01-01 01:15:00,s1,me_s1,1000,3.14159,2.71828,5
+2020-01-01 01:30:00,s1,me_s1,1000,3.14159,2.71828,6
 `,
 		},
 	}
