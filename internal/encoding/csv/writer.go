@@ -22,6 +22,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"math"
 	"sort"
 	"time"
 
@@ -62,6 +63,7 @@ func (w *Writer) Write(ts browser.TimeSeries) error {
 	if len(ts) == 0 {
 		return browser.ErrDataNotFound
 	}
+
 	// Sort timeseries by station.
 	sort.Slice(ts, func(i, j int) bool { return ts[i].Station.Name < ts[j].Station.Name })
 
@@ -132,7 +134,10 @@ func (w *Writer) Write(ts browser.TimeSeries) error {
 					if !ok {
 						break
 					}
-					w.rows[j][column] = fmt.Sprint(p.Value)
+
+					if !math.IsNaN(p.Value) {
+						w.rows[j][column] = fmt.Sprint(p.Value)
+					}
 					break
 				}
 			}
