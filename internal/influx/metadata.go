@@ -24,8 +24,8 @@ var publicAllowed = []string{
 	"Snow_Height_Avg",
 }
 
-// maintenace is a list of measurement names only intressting for technicians.
-var maintenace = []string{
+// maintenance is a list of measurement names only intressting for technicians.
+var maintenance = []string{
 	"RECORD",
 	"Batt_V_Avg",
 	"Batt_V_Std",

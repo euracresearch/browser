@@ -141,7 +141,7 @@ func (db *DB) loadCache() error {
 		for _, series := range result.Series {
 			// add series name to list of measurements if it doesn't belong to
 			// maintenance.
-			if isAllowed(series.Name, maintenace) {
+			if isAllowed(series.Name, maintenance) {
 				continue
 			}
 
@@ -219,7 +219,7 @@ func (db *DB) Maintenance(ctx context.Context) ([]string, error) {
 	if user.Role != browser.FullAccess && !user.License {
 		return []string{}, nil
 	}
-	return maintenace, nil
+	return maintenance, nil
 }
 
 func (db *DB) Series(ctx context.Context, filter *browser.SeriesFilter) (browser.TimeSeries, error) {
@@ -357,7 +357,7 @@ func (db *DB) seriesQuery(ctx context.Context, filter *browser.SeriesFilter) ql.
 // the maintenance slice.
 func appendMaintenance(s []string, label ...string) []string {
 	for _, l := range label {
-		for _, m := range maintenace {
+		for _, m := range maintenance {
 			if strings.EqualFold(l, m) {
 				s = append(s, strings.ToLower(l))
 			}
