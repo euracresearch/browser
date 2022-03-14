@@ -149,6 +149,32 @@ unit,c,b,a
 2020-01-01 01:15:00,4,NaN,NaN
 `,
 		},
+		"gl_issue_116_sorting": {
+			browser.TimeSeries{
+				testMeasurement("c_05_avg", "s1", "c", browser.Int64(5), 5),
+				testMeasurement("a_avg", "s5", "a", nil, 4),
+				testMeasurement("c_03_avg", "s1", "c", browser.Int64(3), 5),
+				testMeasurement("b_03_avg", "s4", "b", browser.Int64(3), 2),
+				testMeasurement("b_avg", "s4", "e", nil, 3),
+				testMeasurement("b_avg", "s1", "b", nil, 3),
+				testMeasurement("c_avg", "s2", "a", nil, 3),
+			},
+			`station,s1,s1,s1,s2,s4,s4,s5
+landuse,me_s1,me_s1,me_s1,me_s2,me_s4,me_s4,me_s5
+latitude,3.14159,3.14159,3.14159,3.14159,3.14159,3.14159,3.14159
+longitude,2.71828,2.71828,2.71828,2.71828,2.71828,2.71828,2.71828
+elevation,1000,1000,1000,1000,1000,1000,1000
+parameter,b,c,c,c,b,b,a
+depth,,3,5,,3,,
+aggregation,avg,avg,avg,avg,avg,avg,avg
+unit,b,c,c,a,b,e,a
+2020-01-01 00:15:00,0,0,0,0,0,0,0
+2020-01-01 00:30:00,1,1,1,1,1,1,1
+2020-01-01 00:45:00,2,2,2,2,NaN,2,2
+2020-01-01 01:00:00,NaN,3,3,NaN,NaN,NaN,3
+2020-01-01 01:15:00,NaN,4,4,NaN,NaN,NaN,NaN
+`,
+		},
 	}
 
 	for k, tc := range testCases {
