@@ -24,6 +24,7 @@ import (
 	"io"
 	"math"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/euracresearch/browser"
@@ -130,7 +131,7 @@ func (w *Writer) Write(ts browser.TimeSeries) error {
 				}
 
 				if p.Timestamp.Equal(t) {
-					column, ok := w.pos[m.Label]
+					column, ok := w.pos[posKey(m)]
 					if !ok {
 						break
 					}
@@ -164,7 +165,7 @@ func (w *Writer) newLine(m *browser.Measurement, p *browser.Point) []string {
 	line[4] = fmt.Sprint(m.Station.Latitude)
 	line[5] = fmt.Sprint(m.Station.Longitude)
 
-	pos, ok := w.pos[m.Label]
+	pos, ok := w.pos[posKey(m)]
 	if ok {
 		line[pos] = fmt.Sprint(p.Value)
 	}
@@ -179,12 +180,12 @@ func (w *Writer) writeHeaderAndUnits(ts browser.TimeSeries) {
 	w.rows = append(w.rows, []string{"", "", "", "", "", ""})
 
 	for _, m := range ts {
-		_, ok := w.pos[m.Label]
+		_, ok := w.pos[posKey(m)]
 		if !ok {
 			// Label is not present in the header so we will add it and store
 			// its column position.
 			w.appendToLine(0, m.Label)
-			w.pos[m.Label] = len(w.rows[0]) - 1
+			w.pos[posKey(m)] = len(w.rows[0]) - 1
 
 			// Write unit below label.
 			w.appendToLine(1, m.Unit)
@@ -203,4 +204,9 @@ func (w *Writer) appendToLine(row int, content string) {
 	}
 
 	w.rows[row] = append(w.rows[row], content)
+}
+
+// posKey returns the map key for the current position.
+func posKey(m *browser.Measurement) string {
+	return strings.ToLower(m.Label) + strings.ToLower(m.Unit)
 }
