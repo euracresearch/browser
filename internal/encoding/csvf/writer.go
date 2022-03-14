@@ -64,8 +64,15 @@ func (w *Writer) Write(ts browser.TimeSeries) error {
 		return browser.ErrDataNotFound
 	}
 
-	// Sort time series by station.
-	sort.Slice(ts, func(i, j int) bool { return ts[i].Station.Name < ts[j].Station.Name })
+	sort.SliceStable(ts, func(i, j int) bool { return ts[i].Aggregation < ts[j].Aggregation })
+	sort.SliceStable(ts, func(i, j int) bool {
+		if ts[i].Depth == nil || ts[j].Depth == nil {
+			return false
+		}
+		return *ts[i].Depth < *ts[j].Depth
+	})
+	sort.SliceStable(ts, func(i, j int) bool { return name(ts[i]) < name(ts[j]) })
+	sort.SliceStable(ts, func(i, j int) bool { return ts[i].Station.Name < ts[j].Station.Name })
 
 	w.writeHeader("station", "landuse", "latitude", "longitude", "elevation", "parameter", "depth", "aggregation", "unit")
 
