@@ -24,6 +24,7 @@ import (
 
 	"github.com/euracresearch/browser"
 	"github.com/euracresearch/browser/internal/ql"
+	"golang.org/x/sync/errgroup"
 
 	client "github.com/influxdata/influxdb1-client/v2"
 )
@@ -129,7 +130,7 @@ func NewDB(client client.Client, database string) (*DB, error) {
 // loadCache initializes a in memory cache due to the slowness of metadata
 // queries like "SHOW TAG VALUES" on large datasets inside InfluxDB.
 func (db *DB) loadCache() error {
-	resp, err := db.exec(ql.ShowTagValues().From().WithKeyIn("snipeit_location_ref"))
+	resp, err := db.exec(context.Background(), ql.ShowTagValues().From().WithKeyIn("snipeit_location_ref"))
 	if err != nil {
 		return err
 	}
@@ -221,125 +222,145 @@ func (db *DB) Maintenance(ctx context.Context) ([]string, error) {
 	return maintenance, nil
 }
 
+// cancelled checks if the given context was cancelled.
+func cancelled(ctx context.Context) bool {
+	select {
+	case <-ctx.Done():
+		return true
+	default:
+		return false
+	}
+}
+
 func (db *DB) Series(ctx context.Context, filter *browser.SeriesFilter) (browser.TimeSeries, error) {
 	if filter == nil {
 		return nil, browser.ErrDataNotFound
 	}
 
-	var (
-		wg sync.WaitGroup
+	g, ctx := errgroup.WithContext(ctx)
+	queries := db.seriesQuery(ctx, filter)
+	measurements := make(chan *browser.Measurement)
+	tokens := make(chan struct{}, 10) // tokens is a counting semaphore used to enforce a limit concurrent requests.
 
-		data = make(chan *browser.Measurement)
-
-		// tokens is a counting semaphore used toq enforce a limit of 10 concurrent requests.
-		tokens = make(chan struct{}, 10)
-	)
-	for _, q := range db.seriesQuery(ctx, filter) {
-		wg.Add(1)
-
-		go func(query ql.Querier) {
-			defer wg.Done()
-
-			tokens <- struct{}{} // acquire a token
-			resp, err := db.exec(query)
+	for _, query := range queries {
+		query := query // https://golang.org/doc/faq#closures_and_goroutines
+		g.Go(func() error {
+			select {
+			case tokens <- struct{}{}: // acquire a token
+			case <-ctx.Done():
+				return ctx.Err()
+			}
+			resp, err := db.exec(ctx, query)
 			<-tokens // release the token
 			if err != nil {
-				log.Printf("db.Series: db.exec failed: %v", err)
-				return
+				return err
 			}
 
-			for _, result := range resp.Results {
-				for _, series := range result.Series {
-					nTime := filter.Start
-
-					m := &browser.Measurement{
-						Label:       series.Name,
-						Aggregation: series.Tags["aggr"],
-						Unit:        series.Tags["unit"],
-						Station: &browser.Station{
-							Name:    series.Tags["station"],
-							Landuse: series.Tags["landuse"],
-						},
-					}
-
-					for _, value := range series.Values {
-						t, err := time.ParseInLocation(time.RFC3339, value[0].(string), time.UTC)
-						if err != nil {
-							log.Printf("cannot convert timestamp: %v. skipping.", err)
-							continue
-						}
-
-						// Fill missing timestamps with NaN values, to return a time
-						// series with a continuous time range. The interval of raw data
-						// in LTER is 15 minutes. See:
-						// https://gitlab.inf.unibz.it/lter/browser/issues/10
-						for !t.Equal(nTime) {
-							m.Points = append(m.Points, &browser.Point{
-								Timestamp: nTime,
-								Value:     math.NaN(),
-							})
-							nTime = nTime.Add(browser.DefaultCollectionInterval)
-						}
-						nTime = t.Add(browser.DefaultCollectionInterval)
-
-						f, err := value[1].(json.Number).Float64()
-						if err != nil {
-							log.Printf("cannot convert value to float: %v. skipping.", err)
-							continue
-						}
-
-						// Add additional metadata only on the first run.
-						m.Station.Elevation, err = value[2].(json.Number).Int64()
-						if err != nil {
-							m.Station.Elevation = -1
-						}
-
-						m.Station.Latitude, err = value[3].(json.Number).Float64()
-						if err != nil {
-							m.Station.Latitude = -1.0
-						}
-
-						m.Station.Longitude, err = value[4].(json.Number).Float64()
-						if err != nil {
-							m.Station.Longitude = -1.0
-						}
-
-						if value[5] == nil {
-							m.Depth = nil
-						} else {
-							d, err := value[5].(json.Number).Int64()
-							if err != nil {
-								m.Depth = nil
-							}
-
-							m.Depth = browser.Int64(d)
-						}
-						p := &browser.Point{
-							Timestamp: t,
-							Value:     f,
-						}
-						m.Points = append(m.Points, p)
-					}
-
-					data <- m
-				}
+			// If we got cancelled, return.
+			if cancelled(ctx) {
+				return ctx.Err()
 			}
-		}(q)
+
+			return processResponse(ctx, resp, filter.Start, measurements)
+		})
 	}
 
-	// Wait on all Goroutines to complete and close the channel.
 	go func() {
-		wg.Wait()
-		close(data)
+		g.Wait()
+		close(measurements)
+		close(tokens)
 	}()
 
 	var ts browser.TimeSeries
-	for m := range data {
+	for m := range measurements {
 		ts = append(ts, m)
 	}
 
-	return ts, nil
+	return ts, g.Wait()
+}
 
+func processResponse(ctx context.Context, resp *client.Response, start time.Time, mCh chan<- *browser.Measurement) error {
+	for _, result := range resp.Results {
+		for _, series := range result.Series {
+			nTime := start
+
+			m := &browser.Measurement{
+				Label:       series.Name,
+				Aggregation: series.Tags["aggr"],
+				Unit:        series.Tags["unit"],
+				Station: &browser.Station{
+					Name:    series.Tags["station"],
+					Landuse: series.Tags["landuse"],
+				},
+			}
+
+			for _, value := range series.Values {
+				if cancelled(ctx) {
+					return ctx.Err()
+				}
+
+				t, err := time.ParseInLocation(time.RFC3339, value[0].(string), time.UTC)
+				if err != nil {
+					log.Printf("cannot convert timestamp: %v. skipping.", err)
+					continue
+				}
+
+				// Fill missing timestamps with NaN values, to return a time
+				// series with a continuous time range. The interval of raw data
+				// in LTER is 15 minutes. See:
+				// https://gitlab.inf.unibz.it/lter/browser/issues/10
+				for !t.Equal(nTime) {
+					m.Points = append(m.Points, &browser.Point{
+						Timestamp: nTime,
+						Value:     math.NaN(),
+					})
+					nTime = nTime.Add(browser.DefaultCollectionInterval)
+				}
+				nTime = t.Add(browser.DefaultCollectionInterval)
+
+				f, err := value[1].(json.Number).Float64()
+				if err != nil {
+					log.Printf("cannot convert value to float: %v. skipping.", err)
+					continue
+				}
+
+				// Add additional metadata only on the first run.
+				m.Station.Elevation, err = value[2].(json.Number).Int64()
+				if err != nil {
+					m.Station.Elevation = -1
+				}
+
+				m.Station.Latitude, err = value[3].(json.Number).Float64()
+				if err != nil {
+					m.Station.Latitude = -1.0
+				}
+
+				m.Station.Longitude, err = value[4].(json.Number).Float64()
+				if err != nil {
+					m.Station.Longitude = -1.0
+				}
+
+				if value[5] == nil {
+					m.Depth = nil
+				} else {
+					d, err := value[5].(json.Number).Int64()
+					if err != nil {
+						m.Depth = nil
+					}
+
+					m.Depth = browser.Int64(d)
+				}
+				p := &browser.Point{
+					Timestamp: t,
+					Value:     f,
+				}
+				m.Points = append(m.Points, p)
+			}
+			// Send the parsed measurement to the channel.
+			mCh <- m
+		}
+	}
+	return nil
 }
 
 func (db *DB) seriesQuery(ctx context.Context, filter *browser.SeriesFilter) []ql.Querier {
@@ -465,11 +486,14 @@ func (db *DB) parseMeasurements(ctx context.Context, filter *browser.SeriesFilte
 }
 
 // exec executes the given ql query and returns a response.
-func (db *DB) exec(q ql.Querier) (*client.Response, error) {
+func (db *DB) exec(ctx context.Context, q ql.Querier) (*client.Response, error) {
 	query, _ := q.Query()
-
 	if query == "" {
 		return nil, errors.New("db.exec: given query is empty")
+	}
+
+	if cancelled(ctx) {
+		return nil, ctx.Err()
 	}
 
 	resp, err := db.client.Query(client.NewQuery(query, db.database, ""))
