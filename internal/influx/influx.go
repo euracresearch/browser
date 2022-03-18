@@ -224,7 +224,7 @@ func (db *DB) Maintenance(ctx context.Context) ([]string, error) {
 
 func (db *DB) Series(ctx context.Context, filter *browser.SeriesFilter) (browser.TimeSeries, error) {
 	if filter == nil {
-		return nil, browser.ErrDataNotFound
+		return nil, browser.ErrInvalidRequest
 	}
 
 	resp, err := db.exec(db.seriesQuery(ctx, filter))

@@ -24,6 +24,7 @@ const DefaultCollectionInterval = 15 * time.Minute
 var (
 	ErrAuthentication    = errors.New("user not authenticated")
 	ErrDataNotFound      = errors.New("no data points")
+	ErrInvalidRequest    = errors.New("invalid request")
 	ErrInternal          = errors.New("internal error")
 	ErrInvalidToken      = errors.New("invalid token")
 	ErrUserNotFound      = errors.New("user not found")
