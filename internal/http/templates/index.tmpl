@@ -113,15 +113,20 @@
 											<input type="checkbox" name="showStd" id="showStd"> {{T "Include standard deviations in download" $lang}}
 										</div>
 									{{end -}}
-										<input type="hidden" id="format" name="format" value="long">
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="format" id="longTableFormat" value="long" checked>
+  											<label class="form-check-label" for="longTableFormat">
+									  			{{T "CSV Wide table format" $lang}}
+											</label> &mdash; 
+											<input class="form-check-input" type="radio" name="format" id="wideTableFormat" value="wide">
+  											<label class="form-check-label" for="wideTableFormat">
+    											{{T "CSV Long table format" $lang}}
+											</label>
+										</div>
 										<div class="btn-group">
-											<button disabled id="submitBtn" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-												{{ T "Download CSV" $lang }} <span class="caret"></span>
+											<button disabled id="submitBtn" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" data-loading-text="{{T "Loading..." $lang}}" aria-haspopup="true" aria-expanded="false">
+												{{ T "Download" $lang }}
 											</button>
-											<ul class="dropdown-menu">
-												<li><a id="submitLongBtn" href="#">{{T "Long table format" $lang}}</a></li>
-												<li><a id="submitWideBtn" href="#">{{T "Wide table format" $lang}}</a></li>
-											</ul>
  									    </div>
 
 										{{if Is .User.Role "FullAccess"}}
@@ -204,6 +209,25 @@
   		</div><!-- /.modal-dialog -->
 	</div><!-- /.modal -->
 
+	<div class="modal fade" tabindex="-1" role="dialog" id="noDataModal">
+  		<div class="modal-dialog" role="document">
+    			<div class="modal-content">
+      				<div class="modal-header">
+        				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        				<h4 class="modal-title">{{T "No data points found!" $lang}}</h4>
+      				</div>
+      				<div class="modal-body">
+        				<p>
+							{{T "Please try again making a different selection." $lang}}
+						</p>
+					</div>
+      				<div class="modal-footer">
+        				<button type="button" class="btn btn-default" data-dismiss="modal">Ok</button>
+      				</div>
+    			</div><!-- /.modal-content -->
+  		</div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
 	{{ range .Data }}
 	<div id="s{{.ID}}" class="none">{{ .Name }} - {{ T .Landuse $lang }} - {{ .Elevation }}</div>
 	{{ end }}
@@ -236,6 +260,7 @@
 				'mapEl':			'map',
 				'scrollToTopEl':	'.scroll-to-top',
 				'stationModal':		'#stationModal',
+				'noDataModal':		'#noDataModal',
 				'data':				JSON.parse('{{.Data}}'),
 			});
 

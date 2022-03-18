@@ -76,12 +76,16 @@ func redirectHandler() http.Handler {
 
 // Error writes an error message to the response.
 func Error(w http.ResponseWriter, err error, code int) {
-	// Log error.
 	log.Printf("http error: %s (code=%d)", err, code)
 
 	// Hide error message from client if it is internal or not found.
 	if code == http.StatusInternalServerError || code == http.StatusNotFound {
 		err = browser.ErrInternal
+	}
+
+	if code == http.StatusNoContent {
+		w.WriteHeader(code)
+		return
 	}
 
 	http.Error(w, err.Error(), code)
