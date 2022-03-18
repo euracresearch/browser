@@ -4,13 +4,16 @@
  * license that can be found in the LICENSE file.
  */
 
-html, body {
+html,
+body {
 	height: 100%;
 	margin: 0;
 	width: 100%;
 }
 
-.layout, .layout > .row, .layout > .row > div {
+.layout,
+.layout>.row,
+.layout>.row>div {
 	height: 100%;
 }
 
@@ -46,7 +49,7 @@ body {
 
 .dropdown-menu>li.multiselect-parent-with-childs>a {
 	display: inline;
-	background:none;
+	background: none;
 }
 
 .dropdown-menu>li.multiselect-parent-with-childs.active {
@@ -82,12 +85,12 @@ body {
 	margin-bottom: 20px;
 }
 
-.welcome > h1 {
+.welcome>h1 {
 	font-size: 1.9em;
 	font-weight: normal;
 }
 
-.welcome > p {
+.welcome>p {
 	font-size: 1.4em;
 }
 
@@ -146,7 +149,7 @@ footer {
 	text-align: center;
 }
 
-.station > .row {
+.station>.row {
 	padding: 5px;
 }
 
@@ -165,6 +168,11 @@ footer {
 	font-size: small;
 	padding: 0;
 	margin: 0;
+}
+
+#cancelBtn {
+	display: none;
+	margin-left: 10px;
 }
 
 /* show scrollbars on macOS */
@@ -193,7 +201,8 @@ footer {
 	padding: 15px;
 }
 
-.scroll-to-top:focus, .scroll-to-top:hover {
+.scroll-to-top:focus,
+.scroll-to-top:hover {
 	color: #000000;
 }
 
@@ -232,21 +241,21 @@ footer {
 }
 
 
-.sidebar-left > .form {
+.sidebar-left>.form {
 	height: 100%;
 }
 
-.sidebar-left > .footer {
+.sidebar-left>.footer {
 	padding: 15px;
 }
 
 .navbar-default {
 	border-radius: 0;
-	padding:0;
+	padding: 0;
 
 }
 
-.navbar-header > h1 {
+.navbar-header>h1 {
 	margin: 30px 5px 0 0;
 	font-size: 1.2em;
 	color: rgb(119, 119, 119);
@@ -266,14 +275,14 @@ footer {
 
 .navbar-brand {
 	margin: 0;
-	padding: 5px 10px  0 10px;
+	padding: 5px 10px 0 10px;
 	height: auto;
 }
 
 .navbar-brand>img {
 	margin: 0;
 	padding: 0;
-    height: 60px;
+	height: 60px;
 }
 
 .navbar-nav>li {
@@ -283,12 +292,12 @@ footer {
 }
 
 .navbar-nav>li>a {
-	color:#484848;
+	color: #484848;
 	font-weight: bold;
 	padding: 10px 10px 10px 10px;
 }
 
-.navbar-nav>li.active{
+.navbar-nav>li.active {
 	background: #e7e7e7;
 	margin: 2px;
 	padding: 2px;
@@ -307,10 +316,6 @@ footer {
 	background-color: #F0F0F0;
 	margin: 2px;
 	padding: 2px;
-}
-
-.disabled {
-	text-decoration: line-through;
 }
 
 #errorDialogContent {
@@ -349,15 +354,15 @@ footer {
 }
 
 .bs-callout {
-    padding: 20px;
-    margin: 20px 0;
-    border: 1px solid #eee;
-    border-left-width: 5px;
-    border-radius: 3px;
+	padding: 20px;
+	margin: 20px 0;
+	border: 1px solid #eee;
+	border-left-width: 5px;
+	border-radius: 3px;
 }
 
 .bs-callout-warning {
-    border-left-color: #aa6708;
+	border-left-color: #aa6708;
 }
 
 
@@ -365,7 +370,7 @@ footer {
 	display: none;
 }
 
-@media (max-width: 1100px){
+@media (max-width: 1100px) {
 	.navbar {
 		min-height: 50px;
 	}

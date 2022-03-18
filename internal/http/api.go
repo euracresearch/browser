@@ -32,12 +32,17 @@ func (h *Handler) handleSeries() http.HandlerFunc {
 
 		ctx := r.Context()
 		ts, err := h.db.Series(ctx, f)
-		if errors.Is(err, browser.ErrDataNotFound) {
+		switch {
+		case errors.Is(err, browser.ErrInvalidRequest):
 			Error(w, err, http.StatusBadRequest)
 			return
-		}
-		if err != nil {
+
+		case err != nil:
 			Error(w, err, http.StatusInternalServerError)
+			return
+
+		case len(ts) == 0:
+			Error(w, browser.ErrDataNotFound, http.StatusNoContent)
 			return
 		}
 
