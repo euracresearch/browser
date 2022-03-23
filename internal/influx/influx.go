@@ -452,9 +452,11 @@ func (db *DB) exec(q ql.Querier) (*client.Response, error) {
 
 	resp, err := db.client.Query(client.NewQuery(query, db.database, ""))
 	if err != nil {
+		log.Printf("db.exec: query: %q", query)
 		return nil, fmt.Errorf("db.exec: %v", err)
 	}
 	if resp.Error() != nil {
+		log.Printf("db.exec: query: %q", query)
 		return nil, fmt.Errorf("db.exec: %v", resp.Error())
 	}
 
