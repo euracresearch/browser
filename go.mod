@@ -6,11 +6,13 @@ require (
 	github.com/coreos/go-oidc v2.1.0+incompatible
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/euracresearch/go-snipeit v0.0.0-20210129072900-94012b727361
+	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/google/go-cmp v0.4.0
 	github.com/google/go-github/v32 v32.1.0
 	github.com/gorilla/securecookie v1.1.1
 	github.com/influxdata/influxdb1-client v0.0.0-20190402204710-8ff2fc3824fc
+	github.com/influxdata/influxql v1.1.0
 	github.com/peterbourgon/ff v1.2.0
 	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
 	github.com/stretchr/testify v1.4.0 // indirect
