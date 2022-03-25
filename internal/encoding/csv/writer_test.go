@@ -44,8 +44,8 @@ func TestWrite(t *testing.T) {
 				testMeasurement("air_rh_avg", "s1", "%", 3),
 				testMeasurement("precip_rt_nrt_tot", "s1", "mm", 3),
 			},
-			`time,station,landuse,elevation,latitude,longitude,a_avg,wind_speed,air_rh_avg,precip_rt_nrt_tot
-,,,,,,c,km/h,%,mm
+			`time,station,landuse,elevation,latitude,longitude,a_avg,air_rh_avg,precip_rt_nrt_tot,wind_speed
+,,,,,,c,%,mm,km/h
 2020-01-01 00:15:00,s1,me_s1,1000,3.14159,2.71828,0,0,0,0
 2020-01-01 00:30:00,s1,me_s1,1000,3.14159,2.71828,1,1,1,1
 2020-01-01 00:45:00,s1,me_s1,1000,3.14159,2.71828,2,2,2,2
@@ -81,8 +81,8 @@ func TestWrite(t *testing.T) {
 				testMeasurement("air_rh_avg", "s2", "%", 3),
 				testMeasurement("precip_rt_nrt_tot", "s2", "mm", 3),
 			},
-			`time,station,landuse,elevation,latitude,longitude,a_avg,wind_speed,air_rh_avg,precip_rt_nrt_tot
-,,,,,,c,km/h,%,mm
+			`time,station,landuse,elevation,latitude,longitude,a_avg,air_rh_avg,precip_rt_nrt_tot,wind_speed
+,,,,,,c,%,mm,km/h
 2020-01-01 00:15:00,s1,me_s1,1000,3.14159,2.71828,0,0,0,0
 2020-01-01 00:30:00,s1,me_s1,1000,3.14159,2.71828,1,1,1,1
 2020-01-01 00:45:00,s1,me_s1,1000,3.14159,2.71828,2,2,2,2
@@ -118,17 +118,17 @@ func TestWrite(t *testing.T) {
 				testMeasurement("air_rh_avg", "s3", "%", 3),
 				testMeasurement("precip_rt_nrt_tot", "s2", "mm", 3),
 			},
-			`time,station,landuse,elevation,latitude,longitude,a_avg,wind_speed,air_rh_avg,precip_rt_nrt_tot
-,,,,,,c,km/h,%,mm
+			`time,station,landuse,elevation,latitude,longitude,a_avg,air_rh_avg,precip_rt_nrt_tot,wind_speed
+,,,,,,c,%,mm,km/h
 2020-01-01 00:15:00,s1,me_s1,1000,3.14159,2.71828,0,0,0,0
 2020-01-01 00:30:00,s1,me_s1,1000,3.14159,2.71828,1,1,1,1
 2020-01-01 00:45:00,s1,me_s1,1000,3.14159,2.71828,2,2,2,2
-2020-01-01 00:15:00,s2,me_s2,1000,3.14159,2.71828,0,0,NaN,0
-2020-01-01 00:30:00,s2,me_s2,1000,3.14159,2.71828,1,1,NaN,1
-2020-01-01 00:45:00,s2,me_s2,1000,3.14159,2.71828,2,2,NaN,2
-2020-01-01 00:15:00,s3,me_s3,1000,3.14159,2.71828,NaN,NaN,0,NaN
-2020-01-01 00:30:00,s3,me_s3,1000,3.14159,2.71828,NaN,NaN,1,NaN
-2020-01-01 00:45:00,s3,me_s3,1000,3.14159,2.71828,NaN,NaN,2,NaN
+2020-01-01 00:15:00,s2,me_s2,1000,3.14159,2.71828,0,NaN,0,0
+2020-01-01 00:30:00,s2,me_s2,1000,3.14159,2.71828,1,NaN,1,1
+2020-01-01 00:45:00,s2,me_s2,1000,3.14159,2.71828,2,NaN,2,2
+2020-01-01 00:15:00,s3,me_s3,1000,3.14159,2.71828,NaN,0,NaN,NaN
+2020-01-01 00:30:00,s3,me_s3,1000,3.14159,2.71828,NaN,1,NaN,NaN
+2020-01-01 00:45:00,s3,me_s3,1000,3.14159,2.71828,NaN,2,NaN,NaN
 `,
 		},
 		"three_station_more_measurements_with_missing_not_equal": {
@@ -142,15 +142,15 @@ func TestWrite(t *testing.T) {
 				testMeasurement("precip_rt_nrt_tot", "s2", "mm", 3),
 				testMeasurement("wind_speed", "s1", "km/h", 3),
 			},
-			`time,station,landuse,elevation,latitude,longitude,a_avg,wind_speed,air_rh_avg,precip_rt_nrt_tot
-,,,,,,c,km/h,%,mm
+			`time,station,landuse,elevation,latitude,longitude,a_avg,air_rh_avg,precip_rt_nrt_tot,wind_speed
+,,,,,,c,%,mm,km/h
 2020-01-01 00:15:00,s1,me_s1,1000,3.14159,2.71828,0,0,0,0
 2020-01-01 00:30:00,s1,me_s1,1000,3.14159,2.71828,1,1,1,1
 2020-01-01 00:45:00,s1,me_s1,1000,3.14159,2.71828,NaN,2,2,2
-2020-01-01 00:15:00,s2,me_s2,1000,3.14159,2.71828,0,0,NaN,0
-2020-01-01 00:30:00,s2,me_s2,1000,3.14159,2.71828,1,1,NaN,1
-2020-01-01 00:45:00,s2,me_s2,1000,3.14159,2.71828,2,2,NaN,2
-2020-01-01 00:15:00,s3,me_s3,1000,3.14159,2.71828,NaN,NaN,0,NaN
+2020-01-01 00:15:00,s2,me_s2,1000,3.14159,2.71828,0,NaN,0,0
+2020-01-01 00:30:00,s2,me_s2,1000,3.14159,2.71828,1,NaN,1,1
+2020-01-01 00:45:00,s2,me_s2,1000,3.14159,2.71828,2,NaN,2,2
+2020-01-01 00:15:00,s3,me_s3,1000,3.14159,2.71828,NaN,0,NaN,NaN
 `,
 		},
 		"not_continuous_time_between_measurements": {
