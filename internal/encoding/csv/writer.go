@@ -65,8 +65,9 @@ func (w *Writer) Write(ts browser.TimeSeries) error {
 		return browser.ErrDataNotFound
 	}
 
-	// Sort timeseries by station.
-	sort.Slice(ts, func(i, j int) bool { return ts[i].Station.Name < ts[j].Station.Name })
+	// Sort timeseries by station and label
+	sort.Slice(ts, func(i, j int) bool { return ts[i].Label < ts[j].Label })
+	sort.SliceStable(ts, func(i, j int) bool { return ts[i].Station.Name < ts[j].Station.Name })
 
 	w.writeHeaderAndUnits(ts)
 
