@@ -7,9 +7,11 @@ package influx
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"math"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -19,6 +21,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	client "github.com/influxdata/influxdb1-client/v2"
+	"github.com/influxdata/influxql"
 )
 
 func TestQuery(t *testing.T) {
@@ -133,7 +136,7 @@ func TestSeries(t *testing.T) {
 	// of the influx client interface which simple returns a client.Response from
 	// a give JSON file.
 	testMessage := &browser.SeriesFilter{
-		Groups:   []browser.Group{browser.AirTemperature, browser.RelativeHumidity, browser.SnowHeight},
+		Groups:   []browser.Group{browser.RelativeHumidity, browser.AirTemperature, browser.SnowHeight},
 		Stations: []string{"39", "4"},
 		Start:    time.Date(2020, 5, 4, 0, 0, 0, 0, browser.Location),
 		End:      time.Date(2020, 5, 4, 0, 0, 0, 0, browser.Location),
@@ -151,7 +154,7 @@ func TestSeries(t *testing.T) {
 		},
 		"missing points": {
 			in:      testMessage,
-			queryFn: queryFnTestHelper(t, "missing.json"),
+			queryFn: queryFnTestHelper(t, "missing"),
 			want: browser.TimeSeries{
 				&browser.Measurement{
 					Label: "air_rh_avg",
@@ -185,7 +188,7 @@ func TestSeries(t *testing.T) {
 		},
 		"multiple measurements": {
 			in:      testMessage,
-			queryFn: queryFnTestHelper(t, "multiple.json"),
+			queryFn: queryFnTestHelper(t, "multiple"),
 			want: browser.TimeSeries{
 				&browser.Measurement{
 					Label:       "air_rh_avg",
@@ -204,25 +207,6 @@ func TestSeries(t *testing.T) {
 						testPoint(t, "2020-05-04T00:30:00+01:00", 45.6),
 						testPoint(t, "2020-05-04T00:45:00+01:00", 46.93),
 						testPoint(t, "2020-05-04T01:00:00+01:00", 48.98),
-					},
-				},
-				&browser.Measurement{
-					Label: "air_rh_avg",
-					Station: &browser.Station{
-						Name:      "b2",
-						Landuse:   "me",
-						Elevation: 1490,
-						Latitude:  46.6862577024,
-						Longitude: 10.5798451965,
-					},
-					Aggregation: "avg",
-					Unit:        "%",
-					Points: []*browser.Point{
-						testPoint(t, "2020-05-04T00:00:00+01:00", 44.91),
-						testPoint(t, "2020-05-04T00:15:00+01:00", 44.54),
-						testPoint(t, "2020-05-04T00:30:00+01:00", 45.43),
-						testPoint(t, "2020-05-04T00:45:00+01:00", 47.45),
-						testPoint(t, "2020-05-04T01:00:00+01:00", 49.49),
 					},
 				},
 				&browser.Measurement{
@@ -245,24 +229,6 @@ func TestSeries(t *testing.T) {
 					},
 				},
 				&browser.Measurement{
-					Label: "air_t_avg",
-					Station: &browser.Station{
-						Name:      "b2",
-						Landuse:   "me",
-						Elevation: 1490,
-						Latitude:  46.6862577024,
-						Longitude: 10.5798451965,
-					},
-					Aggregation: "avg",
-					Unit:        "deg c",
-					Points: []*browser.Point{
-						testPoint(t, "2020-05-04T00:00:00+01:00", 7.379),
-						testPoint(t, "2020-05-04T00:15:00+01:00", 6.933),
-						testPoint(t, "2020-05-04T00:30:00+01:00", 6.783),
-						testPoint(t, "2020-05-04T00:45:00+01:00", 6.53),
-					},
-				},
-				&browser.Measurement{
 					Label:       "snow_height",
 					Aggregation: "smp",
 					Unit:        "",
@@ -279,6 +245,43 @@ func TestSeries(t *testing.T) {
 						testPoint(t, "2020-05-04T00:30:00+01:00", 0.717),
 						testPoint(t, "2020-05-04T00:45:00+01:00", 0.72),
 						testPoint(t, "2020-05-04T01:00:00+01:00", 0.724),
+					},
+				},
+				&browser.Measurement{
+					Label: "air_rh_avg",
+					Station: &browser.Station{
+						Name:      "b2",
+						Landuse:   "me",
+						Elevation: 1490,
+						Latitude:  46.6862577024,
+						Longitude: 10.5798451965,
+					},
+					Aggregation: "avg",
+					Unit:        "%",
+					Points: []*browser.Point{
+						testPoint(t, "2020-05-04T00:00:00+01:00", 44.91),
+						testPoint(t, "2020-05-04T00:15:00+01:00", 44.54),
+						testPoint(t, "2020-05-04T00:30:00+01:00", 45.43),
+						testPoint(t, "2020-05-04T00:45:00+01:00", 47.45),
+						testPoint(t, "2020-05-04T01:00:00+01:00", 49.49),
+					},
+				},
+				&browser.Measurement{
+					Label: "air_t_avg",
+					Station: &browser.Station{
+						Name:      "b2",
+						Landuse:   "me",
+						Elevation: 1490,
+						Latitude:  46.6862577024,
+						Longitude: 10.5798451965,
+					},
+					Aggregation: "avg",
+					Unit:        "deg c",
+					Points: []*browser.Point{
+						testPoint(t, "2020-05-04T00:00:00+01:00", 7.379),
+						testPoint(t, "2020-05-04T00:15:00+01:00", 6.933),
+						testPoint(t, "2020-05-04T00:30:00+01:00", 6.783),
+						testPoint(t, "2020-05-04T00:45:00+01:00", 6.53),
 					},
 				},
 			},
@@ -298,6 +301,12 @@ func TestSeries(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			c.QueryFn = tc.queryFn
 			got, _ := db.Series(ctx, tc.in)
+
+			// Due to the use of goroutines for processing the queries the
+			// output will be random on each run and therefore must be sorted to
+			// be comparable.
+			sort.Slice(got, func(i, j int) bool { return got[i].Label < got[j].Label })
+			sort.SliceStable(got, func(i, j int) bool { return got[i].Station.Name < got[j].Station.Name })
 
 			diff := cmp.Diff(tc.want, got, cmp.Comparer(func(x, y float64) bool {
 				return (math.IsNaN(x) && math.IsNaN(y)) || x == y
@@ -408,7 +417,7 @@ func testPoint(t *testing.T, s string, value float64) *browser.Point {
 	}
 }
 
-func queryFnTestHelper(t *testing.T, filename string) func(q client.Query) (*client.Response, error) {
+func queryFnTestHelper(t *testing.T, dir string) func(q client.Query) (*client.Response, error) {
 	t.Helper()
 
 	return func(q client.Query) (*client.Response, error) {
@@ -416,27 +425,42 @@ func queryFnTestHelper(t *testing.T, filename string) func(q client.Query) (*cli
 
 		switch {
 		case strings.HasPrefix(inQuery, "show measurements"):
-			filename = "measurements.json"
+			return responseFromFile(t, "measurements.json")
 		case strings.HasPrefix(inQuery, "show tag"):
-			filename = "tags.json"
+			return responseFromFile(t, "tags.json")
+		default:
+			log.Println(inQuery)
+			stmt, err := influxql.NewParser(strings.NewReader(inQuery)).ParseStatement()
+			if err != nil {
+				log.Println(err)
+				return &client.Response{}, nil
+			}
+
+			selectStmt := stmt.(*influxql.SelectStatement)
+			m := selectStmt.Sources.Measurements()[0]
+			return responseFromFile(t, filepath.Join(dir, m.Name+".json"))
 		}
-
-		f, err := os.Open(filepath.Join("testdata", filename))
-		if err != nil {
-			return nil, err
-		}
-		defer f.Close()
-
-		dec := json.NewDecoder(f)
-		dec.UseNumber()
-
-		var resp *client.Response
-		if err := dec.Decode(&resp); err != nil {
-			return nil, err
-		}
-
-		return resp, nil
 	}
+}
+
+func responseFromFile(t *testing.T, filename string) (*client.Response, error) {
+	t.Helper()
+	log.Println(filepath.Join("testdata", filename))
+	f, err := os.Open(filepath.Join("testdata", filename))
+	if err != nil {
+		return &client.Response{}, nil
+	}
+	defer f.Close()
+
+	dec := json.NewDecoder(f)
+	dec.UseNumber()
+
+	var resp *client.Response
+	if err := dec.Decode(&resp); err != nil {
+		return &client.Response{}, nil
+	}
+
+	return resp, nil
 }
 
 // createContext returns a new context with an browser.User embedded with the

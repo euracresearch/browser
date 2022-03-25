@@ -9,7 +9,6 @@
 package influx
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -227,130 +226,146 @@ func (db *DB) Series(ctx context.Context, filter *browser.SeriesFilter) (browser
 		return nil, browser.ErrInvalidRequest
 	}
 
-	resp, err := db.exec(db.seriesQuery(ctx, filter))
-	if err != nil {
-		return nil, err
-	}
+	ch := make(chan *browser.Measurement)
+	var wg sync.WaitGroup
+	for _, q := range db.seriesQuery(ctx, filter) {
+		wg.Add(1)
 
-	var ts browser.TimeSeries
-	for _, result := range resp.Results {
-		for _, series := range result.Series {
-			nTime := filter.Start
+		go func(query ql.Querier) error {
+			defer wg.Done()
 
-			m := &browser.Measurement{
-				Label:       series.Name,
-				Aggregation: series.Tags["aggr"],
-				Unit:        series.Tags["unit"],
-				Station: &browser.Station{
-					Name:    series.Tags["station"],
-					Landuse: series.Tags["landuse"],
-				},
+			resp, err := db.exec(query)
+			if err != nil {
+				return err // TODO: Handle the error properly in a goroutine.
 			}
 
-			for _, value := range series.Values {
-				t, err := time.ParseInLocation(time.RFC3339, value[0].(string), time.UTC)
-				if err != nil {
-					log.Printf("cannot convert timestamp: %v. skipping.", err)
-					continue
-				}
+			for _, result := range resp.Results {
+				for _, series := range result.Series {
+					nTime := filter.Start
 
-				// Fill missing timestamps with NaN values, to return a time
-				// series with a continuous time range. The interval of raw data
-				// in LTER is 15 minutes. See:
-				// https://gitlab.inf.unibz.it/lter/browser/issues/10
-				for !t.Equal(nTime) {
-					m.Points = append(m.Points, &browser.Point{
-						Timestamp: nTime,
-						Value:     math.NaN(),
-					})
-					nTime = nTime.Add(browser.DefaultCollectionInterval)
-				}
-				nTime = t.Add(browser.DefaultCollectionInterval)
-
-				f, err := value[1].(json.Number).Float64()
-				if err != nil {
-					log.Printf("cannot convert value to float: %v. skipping.", err)
-					continue
-				}
-
-				// Add additional metadata only on the first run.
-				m.Station.Elevation, err = value[2].(json.Number).Int64()
-				if err != nil {
-					m.Station.Elevation = -1
-				}
-
-				m.Station.Latitude, err = value[3].(json.Number).Float64()
-				if err != nil {
-					m.Station.Latitude = -1.0
-				}
-
-				m.Station.Longitude, err = value[4].(json.Number).Float64()
-				if err != nil {
-					m.Station.Longitude = -1.0
-				}
-
-				if value[5] == nil {
-					m.Depth = nil
-				} else {
-					d, err := value[5].(json.Number).Int64()
-					if err != nil {
-						m.Depth = nil
+					m := &browser.Measurement{
+						Label:       series.Name,
+						Aggregation: series.Tags["aggr"],
+						Unit:        series.Tags["unit"],
+						Station: &browser.Station{
+							Name:    series.Tags["station"],
+							Landuse: series.Tags["landuse"],
+						},
 					}
 
-					m.Depth = browser.Int64(d)
+					for _, value := range series.Values {
+						t, err := time.ParseInLocation(time.RFC3339, value[0].(string), time.UTC)
+						if err != nil {
+							log.Printf("cannot convert timestamp: %v. skipping.", err)
+							continue
+						}
+
+						// Fill missing timestamps with NaN values, to return a time
+						// series with a continuous time range. The interval of raw data
+						// in LTER is 15 minutes. See:
+						// https://gitlab.inf.unibz.it/lter/browser/issues/10
+						for !t.Equal(nTime) {
+							m.Points = append(m.Points, &browser.Point{
+								Timestamp: nTime,
+								Value:     math.NaN(),
+							})
+							nTime = nTime.Add(browser.DefaultCollectionInterval)
+						}
+						nTime = t.Add(browser.DefaultCollectionInterval)
+
+						f, err := value[1].(json.Number).Float64()
+						if err != nil {
+							log.Printf("cannot convert value to float: %v. skipping.", err)
+							continue
+						}
+
+						// Add additional metadata only on the first run.
+						m.Station.Elevation, err = value[2].(json.Number).Int64()
+						if err != nil {
+							m.Station.Elevation = -1
+						}
+
+						m.Station.Latitude, err = value[3].(json.Number).Float64()
+						if err != nil {
+							m.Station.Latitude = -1.0
+						}
+
+						m.Station.Longitude, err = value[4].(json.Number).Float64()
+						if err != nil {
+							m.Station.Longitude = -1.0
+						}
+
+						if value[5] == nil {
+							m.Depth = nil
+						} else {
+							d, err := value[5].(json.Number).Int64()
+							if err != nil {
+								m.Depth = nil
+							}
+
+							m.Depth = browser.Int64(d)
+						}
+						p := &browser.Point{
+							Timestamp: t,
+							Value:     f,
+						}
+						m.Points = append(m.Points, p)
+					}
+
+					ch <- m
 				}
-				p := &browser.Point{
-					Timestamp: t,
-					Value:     f,
-				}
-				m.Points = append(m.Points, p)
 			}
 
-			ts = append(ts, m)
-		}
+			return nil
+		}(q)
+	}
+
+	// Wait on all Goroutines to complete and close the channel.
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+
+	var ts browser.TimeSeries
+	for m := range ch {
+		ts = append(ts, m)
 	}
 
 	return ts, nil
+
 }
 
-func (db *DB) seriesQuery(ctx context.Context, filter *browser.SeriesFilter) ql.Querier {
-	return ql.QueryFunc(func() (string, []interface{}) {
-		var (
-			buf          bytes.Buffer
-			args         []interface{}
-			start, end   = startEndTime(filter.Start, filter.End)
-			user         = browser.UserFromContext(ctx)
-			measurements = db.parseMeasurements(ctx, filter)
+func (db *DB) seriesQuery(ctx context.Context, filter *browser.SeriesFilter) []ql.Querier {
+	var (
+		start, end   = startEndTime(filter.Start, filter.End)
+		user         = browser.UserFromContext(ctx)
+		measurements = db.parseMeasurements(ctx, filter)
+		queries      []ql.Querier
+	)
+
+	// If the users has full access and the filter contains maintenance
+	// measurements add them to the slice.
+	if user.Role == browser.FullAccess && user.License {
+		measurements = appendMaintenance(measurements, filter.Maintenance...)
+	}
+
+	for _, measure := range measurements {
+		columns := []string{measure, "altitude as elevation", "latitude", "longitude", "depth"}
+
+		sb := ql.Select(columns...)
+		sb.From(measure)
+		sb.Where(
+			ql.Eq(ql.Or(), "snipeit_location_ref", filter.Stations...),
+			ql.And(),
+			ql.TimeRange(start, end),
 		)
+		sb.GroupBy("station,snipeit_location_ref,landuse,unit,aggr")
+		sb.OrderBy("time").ASC().TZ("Etc/GMT-1")
 
-		// If the users has full access and the filter contains maintenance
-		// measurements add them to the slice.
-		if user.Role == browser.FullAccess && user.License {
-			measurements = appendMaintenance(measurements, filter.Maintenance...)
-		}
+		queries = append(queries, sb)
+	}
 
-		for _, measure := range measurements {
-			columns := []string{measure, "altitude as elevation", "latitude", "longitude", "depth"}
-
-			sb := ql.Select(columns...)
-			sb.From(measure)
-			sb.Where(
-				ql.Eq(ql.Or(), "snipeit_location_ref", filter.Stations...),
-				ql.And(),
-				ql.TimeRange(start, end),
-			)
-			sb.GroupBy("station,snipeit_location_ref,landuse,unit,aggr")
-			sb.OrderBy("time").ASC().TZ("Etc/GMT-1")
-
-			q, arg := sb.Query()
-			buf.WriteString(q)
-			buf.WriteString(";")
-
-			args = append(args, arg)
-		}
-
-		return buf.String(), args
-	})
+	return queries
 }
 
 // appendMaintenance appends the given labels to s if the label is present in
@@ -450,6 +465,8 @@ func (db *DB) exec(q ql.Querier) (*client.Response, error) {
 		return nil, errors.New("db.exec: given query is empty")
 	}
 
+	//fmt.Println(len(query))
+	//fmt.Println(query)
 	resp, err := db.client.Query(client.NewQuery(query, db.database, ""))
 	if err != nil {
 		log.Printf("db.exec: query: %q", query)
