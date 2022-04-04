@@ -26,6 +26,8 @@ type Handler struct {
 	// analytics is a Google Analytics code.
 	analytics string
 
+	devMode bool
+
 	db             browser.Database
 	stationService browser.StationService
 }
@@ -64,7 +66,11 @@ func NewHandler(options ...Option) *Handler {
 	h.mux.HandleFunc("/debug/version", h.handleVersion)
 	h.mux.HandleFunc("/debug/commit", h.handleCommit)
 
-	h.mux.Handle("/assets/", http.FileServer(http.FS(publicFS)))
+	fs := http.FS(publicFS)
+	if h.devMode {
+		fs = http.Dir("./internal/http/")
+	}
+	h.mux.Handle("/assets/", http.FileServer(fs))
 
 	return h
 }
@@ -92,6 +98,12 @@ func WithStationService(s browser.StationService) Option {
 func WithAnalyticsCode(analytics string) Option {
 	return func(h *Handler) {
 		h.analytics = analytics
+	}
+}
+
+func WithDevMode(mode bool) Option {
+	return func(h *Handler) {
+		h.devMode = mode
 	}
 }
 
