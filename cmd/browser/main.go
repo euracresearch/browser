@@ -64,6 +64,7 @@ func main() {
 		googleClientID    = fs.String("google.clientid", "", "Google OAuth2 client ID.")
 		googleSecret      = fs.String("google.secret", "", "Google OAuth2 secret.")
 		googleRedirect    = fs.String("google.redirect", "", "Google OAuth2 redirect URL.")
+		devMode           = fs.Bool("dev", false, "Run in development mode.")
 		_                 = fs.String("config", "", "Config file (optional)")
 	)
 
@@ -116,6 +117,7 @@ func main() {
 		http.WithDatabase(db),
 		http.WithStationService(stationService),
 		http.WithAnalyticsCode(*analyticsCode),
+		http.WithDevMode(*devMode),
 	)
 
 	// Initialize authentication handler.
