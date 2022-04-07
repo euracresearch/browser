@@ -24,7 +24,7 @@ const (
 	// DefaultLifespan is the duration a token and cookie is valid
 	DefaultLifespan = 48 * time.Hour
 
-	// DefaultJWTIssure is the default issure of the JWT token
+	// DefaultJWTIssuer is the default issuer of the JWT token
 	DefaultJWTIssuer = "BrowserLTER"
 )
 
