@@ -237,15 +237,16 @@ func (db *DB) Series(ctx context.Context, filter *browser.SeriesFilter) (browser
 	for _, q := range db.seriesQuery(ctx, filter) {
 		wg.Add(1)
 
-		go func(query ql.Querier) error {
+		go func(query ql.Querier) {
 			defer wg.Done()
 
 			tokens <- struct{}{} // acquire a token
 			resp, err := db.exec(query)
-			if err != nil {
-				return err // TODO: Handle the error properly in a goroutine.
-			}
 			<-tokens // release the token
+			if err != nil {
+				log.Printf("db.Series: db.exec failed: %v", err)
+				return
+			}
 
 			for _, result := range resp.Results {
 				for _, series := range result.Series {
@@ -323,8 +324,6 @@ func (db *DB) Series(ctx context.Context, filter *browser.SeriesFilter) (browser
 					data <- m
 				}
 			}
-
-			return nil
 		}(q)
 	}
 
