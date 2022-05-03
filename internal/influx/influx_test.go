@@ -342,7 +342,7 @@ func TestGroupsByStation(t *testing.T) {
 			browser.SnowHeight,
 			browser.WindDirection,
 			browser.WindSpeed,
-			browser.WindSpeedMax,
+			browser.WindGust,
 		}
 
 		// Test with user public user embedded in the ctx.
