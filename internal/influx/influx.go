@@ -75,7 +75,7 @@ var (
 		browser.SoilSurfaceTemperature:                       regexp.MustCompile(`.*surf_t.*$`), // TODO: "surf_t_" and not("mv")
 		browser.Wind:                                         regexp.MustCompile(`^wind.*$`),
 		browser.WindSpeed:                                    regexp.MustCompile(`^wind_speed$|wind_speed.*_(avg|std)$`),
-		browser.WindSpeedMax:                                 regexp.MustCompile(`^wind_speed.*_max$`),
+		browser.WindGust:                                     regexp.MustCompile(`^wind_speed.*_max$|^wind_gust_.*$`),
 		browser.WindDirection:                                regexp.MustCompile(`^wind_dir.*`),
 		browser.Precipitation:                                regexp.MustCompile(`^precip.*(_tot|_int).*$`),
 		browser.PrecipitationTotal:                           regexp.MustCompile(`^precip.*(_tot).*$`),

@@ -42,8 +42,8 @@ const (
 	SoilSurfaceTemperature
 	Wind
 	WindSpeed
-	WindSpeedMax
 	WindDirection
+	WindGust
 	Precipitation
 	PrecipitationTotal
 	PrecipitationIntensity
@@ -128,8 +128,8 @@ func (g Group) String() string {
 		return "50 cm"
 	case WindSpeed:
 		return "Speed"
-	case WindSpeedMax:
-		return "Speed Max"
+	case WindGust:
+		return "Gust (speed & direction)"
 	case PrecipitationTotal:
 		return "Total"
 	case PrecipitationIntensity:
@@ -154,8 +154,8 @@ func (g Group) Public() string {
 		return g.String()
 	case WindSpeed:
 		return "Wind Speed"
-	case WindSpeedMax:
-		return "Wind Speed Max"
+	case WindGust:
+		return "Wind Gust"
 	case WindDirection:
 		return "Wind Direction"
 	case ShortWaveRadiationIncoming:
@@ -219,7 +219,11 @@ func (g Group) SubGroups() []Group {
 		}
 
 	case Wind:
-		return []Group{WindSpeed, WindSpeedMax, WindDirection}
+		return []Group{
+			WindSpeed,
+			WindGust,
+			WindDirection,
+		}
 
 	case Precipitation:
 		return []Group{PrecipitationTotal, PrecipitationIntensity}
@@ -301,7 +305,7 @@ func GroupsByType(t GroupType) []Group {
 			SoilWaterPotentialDepth50,
 			WindDirection,
 			WindSpeed,
-			WindSpeedMax,
+			WindGust,
 			PrecipitationTotal,
 			PrecipitationIntensity,
 			PhotosyntheticallyActiveRadiationTotal,
@@ -323,7 +327,7 @@ func GroupsByRole(r Role) []Group {
 			RelativeHumidity,
 			WindDirection,
 			WindSpeed,
-			WindSpeedMax,
+			WindGust,
 			ShortWaveRadiationIncoming,
 			PrecipitationTotal,
 			SnowHeight,
