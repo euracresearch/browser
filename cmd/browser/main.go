@@ -5,6 +5,8 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -64,6 +66,7 @@ func main() {
 		googleClientID    = fs.String("google.clientid", "", "Google OAuth2 client ID.")
 		googleSecret      = fs.String("google.secret", "", "Google OAuth2 secret.")
 		googleRedirect    = fs.String("google.redirect", "", "Google OAuth2 redirect URL.")
+		healthzToken      = fs.String("health.token", "", "Token for the health check endpoint")
 		devMode           = fs.Bool("dev", false, "Run in development mode.")
 		_                 = fs.String("config", "", "Config file (optional)")
 	)
@@ -157,10 +160,31 @@ func main() {
 		Nonce:       *oauthNonce,
 	})
 
+	// Simple health check function which ping influxdb and checks if the
+	// SnipeIT API returns some data.
+	healthFn := func() error {
+		_, _, err = ic.Ping(10 * time.Second)
+		if err != nil {
+			return err
+		}
+
+		s, err := stationService.Stations(context.Background())
+		if err != nil {
+			return err
+		}
+
+		if len(s) == 0 {
+			return errors.New("no stations found")
+		}
+
+		return nil
+	}
+
 	// Add some common middleware.
 	mw := middleware.Chain(
 		middleware.SecureHeaders(),
 		middleware.XSRFProtect(*xsrfKey),
+		middleware.Healthz(*healthzToken, healthFn),
 	)
 
 	log.Printf("Starting server on %s\n", *listenAddr)
