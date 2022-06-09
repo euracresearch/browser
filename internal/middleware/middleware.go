@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Package middleware implements a simple middleware pattern for HTTP handlers,
-// along with implementation for some common middlewares.
+// along with implementation for some common middleware.
 package middleware
 
 import (
@@ -47,6 +47,33 @@ func SecureHeaders() Middleware {
 			w.Header().Set("Strict-Transport-Security", "max-age=63072000")
 
 			h.ServeHTTP(w, r)
+		})
+	}
+}
+
+// Healthz is a simple health check endpoint, which runs the given health
+// function.
+func Healthz(token string, fn func() error) Middleware {
+	return func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != "/healthz" {
+				h.ServeHTTP(w, r)
+				return
+			}
+
+			tokenParam := r.URL.Query().Get("ht")
+			if tokenParam != token {
+				http.Error(w, "unauthorized", http.StatusUnauthorized)
+				return
+			}
+
+			if err := fn(); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("ok"))
 		})
 	}
 }
