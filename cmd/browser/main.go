@@ -53,7 +53,6 @@ func main() {
 		snipeitToken      = fs.String("snipeit.token", "", "SnipeIT API Token")
 		jwtKey            = fs.String("jwt.key", "", "Secret key used to create a JWT. Don't share it.")
 		xsrfKey           = fs.String("xsrf.key", "d71404b42640716b0050ad187489c128ec3d611179cf14a29ddd6ea0d536a2c1", "Random string used for generating XSRF token.")
-		analyticsCode     = fs.String("analytics.code", "", "Google Analytics Code")
 		cookieHashKey     = fs.String("cookie.hash", "3998130314e70d9037e05bf872881156da20e07f344f6d9ae58f92e4be85a07dbdb8949c2eee7e0498247176df3d7785200e586c1b52b7f87210119297f77552", "Hash key used for securing the HTTP cookie. Should be at least 32 bytes long.")
 		cookieBlockKey    = fs.String("cookie.block", "e48f59d35c3871586f68d788bcff6c45", "Block keys should be 16 bytes (AES-128) or 32 bytes (AES-256) long. Shorter keys may weaken the encryption used.")
 		oauthState        = fs.String("oauth2.state", "", "Random string used for OAuth2 state code.")
@@ -119,7 +118,6 @@ func main() {
 	frontend := http.NewHandler(
 		http.WithDatabase(db),
 		http.WithStationService(stationService),
-		http.WithAnalyticsCode(*analyticsCode),
 		http.WithDevMode(*devMode),
 	)
 

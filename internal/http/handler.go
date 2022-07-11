@@ -21,11 +21,7 @@ var (
 
 // Handler serves various HTTP endpoints.
 type Handler struct {
-	mux *http.ServeMux
-
-	// analytics is a Google Analytics code.
-	analytics string
-
+	mux     *http.ServeMux
 	devMode bool
 
 	db             browser.Database
@@ -91,13 +87,6 @@ func WithDatabase(db browser.Database) Option {
 func WithStationService(s browser.StationService) Option {
 	return func(h *Handler) {
 		h.stationService = s
-	}
-}
-
-// WithAnalyticsCode sets the Google Analytics code.
-func WithAnalyticsCode(analytics string) Option {
-	return func(h *Handler) {
-		h.analytics = analytics
 	}
 }
 
