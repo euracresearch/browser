@@ -56,16 +56,15 @@ func (h *Handler) handleIndex() http.HandlerFunc {
 		}
 
 		err = tmpl.Execute(w, struct {
-			Data          browser.Stations
-			Groups        []browser.Group
-			Maintenance   []string
-			User          *browser.User
-			Language      string
-			Path          string
-			AnalyticsCode string
-			Token         string
-			StartDate     string
-			EndDate       string
+			Data        browser.Stations
+			Groups      []browser.Group
+			Maintenance []string
+			User        *browser.User
+			Language    string
+			Path        string
+			Token       string
+			StartDate   string
+			EndDate     string
 		}{
 			data,
 			browser.GroupsByRole(user.Role),
@@ -73,7 +72,6 @@ func (h *Handler) handleIndex() http.HandlerFunc {
 			user,
 			lang,
 			r.URL.Path,
-			h.analytics,
 			middleware.XSRFTokenPlaceholder,
 			time.Now().AddDate(0, -6, 0).Format("2006-01-02"),
 			time.Now().Format("2006-01-02"),
@@ -114,19 +112,17 @@ func (h *Handler) handleHello() http.HandlerFunc {
 		}
 
 		err = tmpl.Execute(w, struct {
-			Data          browser.Stations
-			User          *browser.User
-			Language      string
-			Path          string
-			AnalyticsCode string
-			Token         string
-			Content       template.HTML
+			Data     browser.Stations
+			User     *browser.User
+			Language string
+			Path     string
+			Token    string
+			Content  template.HTML
 		}{
 			data,
 			user,
 			lang,
 			name,
-			h.analytics,
 			middleware.XSRFTokenPlaceholder,
 			template.HTML(license),
 		})
@@ -179,18 +175,16 @@ func (h *Handler) handleStaticPage() http.HandlerFunc {
 		}
 
 		err = tmpl.Execute(w, struct {
-			Data          browser.Stations
-			User          *browser.User
-			Language      string
-			Path          string
-			AnalyticsCode string
-			Content       template.HTML
+			Data     browser.Stations
+			User     *browser.User
+			Language string
+			Path     string
+			Content  template.HTML
 		}{
 			data,
 			user,
 			lang,
 			name,
-			h.analytics,
 			template.HTML(p),
 		})
 		if err != nil {
