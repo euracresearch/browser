@@ -15,24 +15,4 @@
 	<a href="http://www.eurac.edu" target="_blank" rel="noreferrer"><img src="/assets/images/eurac_research.png" width="120" alt="Eurac Research"></a> <a href="http://www.provinz.bz.it/" target="_blank" rel="noreferrer"><img src="/assets/images/provinz_bz.jpg" alt="Autonome Provinz Bozen Südtirol - Provincia autonoma di Bolzano Alto Adige" width="180"></a>
 </footer>
 
-{{if $.AnalyticsCode}}
-<script>
-	$(document).ready(function() {
-		new CookiesEuBanner(function () {
-			var newScript = document.createElement("script");
-			newScript.type = "text/javascript";
-			newScript.setAttribute("async", "true");
-			newScript.setAttribute("src", "https://www.googletagmanager.com/gtag/js?id={{$.AnalyticsCode}}");
-			document.documentElement.firstChild.appendChild(newScript);
-			window.dataLayer = window.dataLayer || [];
-			function gtag(){dataLayer.push(arguments);}
-			gtag('js', new Date());
-			// https://developers.google.com/analytics/devguides/collection/gtagjs/display-features
-			gtag('set', 'allow_ad_personalization_signals', false);
-			gtag('config', '{{$.AnalyticsCode}}');
-		}, true);
-	});
-</script>
-{{end}}
-
 {{end}}
