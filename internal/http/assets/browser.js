@@ -34,15 +34,10 @@ function browser(opts) {
 	function loadMap() {
 		const map = L.map(opts.mapEl, { zoomControl: false }).setView([46.69765764825818, 10.638368502259254], 13);
 
-		const basemap = {
-			"Orthophotos South Tyrol (2020)": L.tileLayer.wms('https://geoservices.buergernetz.bz.it/geoserver/ows?', {
-				layers: 'p_bz-orthoimagery:P_BZ_OF_2020',
-				attribution: 'Map data &copy; <a href="http://geoportal.buergernetz.bz.it/geodaten.asp">Geoportal Südtirol</a>, <a href="https://creativecommons.org/publicdomain/zero/1.0/deed.en">CC-0</a>'
-			}).addTo(map),
-
+		const basemap = { 
 			"Open Street Map": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?', {
 				attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
-			}),
+			}).addTo(map),
 
 			"OpenTopoMap": L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
 				attribution: 'Kartendaten: &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>-Mitwirkende, SRTM | Kartendarstellung: &copy; <a href="http://opentopomap.org/">OpenTopoMap<a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
