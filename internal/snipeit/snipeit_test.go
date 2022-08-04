@@ -6,7 +6,6 @@ package snipeit
 
 import (
 	"context"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -35,14 +34,14 @@ func TestStation(t *testing.T) {
 			return
 
 		case "2":
-			b, err := ioutil.ReadFile("testdata/single.json")
+			b, err := os.ReadFile("testdata/single.json")
 			if err != nil {
 				http.Error(w, "internal error", http.StatusInternalServerError)
 				return
 			}
 			w.Write(b)
 		case "4":
-			b, err := ioutil.ReadFile("testdata/single_parse_error.json")
+			b, err := os.ReadFile("testdata/single_parse_error.json")
 			if err != nil {
 				http.Error(w, "internal error", http.StatusInternalServerError)
 				return
@@ -93,7 +92,7 @@ func TestStation(t *testing.T) {
 
 func TestStations(t *testing.T) {
 	mux.HandleFunc("/locations", func(w http.ResponseWriter, r *http.Request) {
-		b, err := ioutil.ReadFile("testdata/multiple.json")
+		b, err := os.ReadFile("testdata/multiple.json")
 		if err != nil {
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
