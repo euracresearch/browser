@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -109,9 +109,9 @@ func TestHandleSeries(t *testing.T) {
 
 			if tc.respBody != nil {
 				defer resp.Body.Close()
-				b, err := ioutil.ReadAll(resp.Body)
+				b, err := io.ReadAll(resp.Body)
 				if err != nil {
-					t.Fatalf("ioutil.ReadAll(resp.Body): %v", err)
+					t.Fatalf("io.ReadAll(resp.Body): %v", err)
 				}
 
 				if !bytes.Equal(b, tc.respBody) {
@@ -180,9 +180,9 @@ func TestHandleTemplate(t *testing.T) {
 
 			if tc.tmpl != nil {
 				defer resp.Body.Close()
-				b, err := ioutil.ReadAll(resp.Body)
+				b, err := io.ReadAll(resp.Body)
 				if err != nil {
-					t.Fatalf("ioutil.ReadAll(resp.Body): %v", err)
+					t.Fatalf("io.ReadAll(resp.Body): %v", err)
 				}
 
 				var want bytes.Buffer
