@@ -1,4 +1,4 @@
-FROM golang:1.18 as builder
+FROM golang:1.19 as builder
 ARG browser_ref
 ARG browser_sha
 ENV BUILD_DIR /tmp/browser
