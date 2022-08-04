@@ -6,7 +6,7 @@ package middleware
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -36,7 +36,7 @@ func TestXSRFProtect(t *testing.T) {
 	}
 	defer resp.Body.Close()
 
-	gotBody, err := ioutil.ReadAll(resp.Body)
+	gotBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatal(err)
 	}
