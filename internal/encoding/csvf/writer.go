@@ -8,19 +8,19 @@
 // The friendly format has the header vertical and values in horizontal order.
 // Here is an example of the friendly CSV output:
 //
-//      station,b1,b1,b1,b2,b2
-//      landuse,me,me,me,me,me
-//      latitude,46.6612188656,46.6612188656,46.6612188656,46.6862577024,46.6862577024
-//      longitude,10.5902491243,10.5902491243,10.5902491243,10.5798451965,10.5798451965
-//      elevation,990,990,990,1490,1490
-//      parameter,precip_rt_nrt,snow_height,wind_dir,snow_height,wind_dir
-//      depth,,,,,
-//      aggregation,tot,smp,smp,smp,smp
-//      unit,mm,,degrees,,degrees
-//      2020-01-07 00:00:00,0,0.028,77,0.122,42
-//      2020-01-07 00:15:00,0,0.027,115,0.128,83
-//      2020-01-07 00:30:00,0,0.03,69,0.128,36
-//      ...
+//	station,b1,b1,b1,b2,b2
+//	landuse,me,me,me,me,me
+//	latitude,46.6612188656,46.6612188656,46.6612188656,46.6862577024,46.6862577024
+//	longitude,10.5902491243,10.5902491243,10.5902491243,10.5798451965,10.5798451965
+//	elevation,990,990,990,1490,1490
+//	parameter,precip_rt_nrt,snow_height,wind_dir,snow_height,wind_dir
+//	depth,,,,,
+//	aggregation,tot,smp,smp,smp,smp
+//	unit,mm,,degrees,,degrees
+//	2020-01-07 00:00:00,0,0.028,77,0.122,42
+//	2020-01-07 00:15:00,0,0.027,115,0.128,83
+//	2020-01-07 00:30:00,0,0.03,69,0.128,36
+//	...
 //
 // For more information see:
 // https://gitlab.inf.unibz.it/lter/browser/-/issues/90
