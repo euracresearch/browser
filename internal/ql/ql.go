@@ -12,12 +12,11 @@
 //
 // An example of a SELECT query:
 //
-//  ql.Select("a", "b").From("c").Where(ql.Eq(ql.And(), "a", "d", "g"))
+//	ql.Select("a", "b").From("c").Where(ql.Eq(ql.And(), "a", "d", "g"))
 //
 // Will return:
 //
-//  SELECT a, b FROM c WHERE a='d' AND a='g'
-//
+//	SELECT a, b FROM c WHERE a='d' AND a='g'
 package ql
 
 import (
@@ -377,7 +376,7 @@ func (o *OperatorBuilder) Query() (string, []interface{}) {
 // Eq returns a query part which compares column to each given value, joining
 // them together with the given OperatorBuilder.
 //
-//   Eq(And(), "a", "b", "c") -> a='b' AND a='c'
+//	Eq(And(), "a", "b", "c") -> a='b' AND a='c'
 func Eq(join *OperatorBuilder, column string, values ...string) Querier {
 	return QueryFunc(func() (string, []interface{}) {
 		return comp(join, "=", column, values...), nil
