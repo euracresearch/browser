@@ -62,6 +62,7 @@ const (
 	LongWaveRadiation
 	LongWaveRadiationIncoming
 	LongWaveRadiationOutgoing
+	AtmosphericPressure
 	NoGroup
 )
 
@@ -74,6 +75,8 @@ func (g Group) String() string {
 		return "No Group"
 	case AirTemperature:
 		return "Air Temperature"
+	case AtmosphericPressure:
+		return "Atmospheric Pressure"
 	case RelativeHumidity:
 		return "Relative Humidity"
 	case SoilTemperature:
@@ -162,6 +165,8 @@ func (g Group) Public() string {
 		return "Global Radiation"
 	case PrecipitationTotal:
 		return "Precipitation"
+	case AtmosphericPressure:
+		return "Atmospheric Pressure"
 	}
 }
 
@@ -256,6 +261,7 @@ func GroupsByType(t GroupType) []Group {
 	default:
 		return []Group{
 			AirTemperature,
+			AtmosphericPressure,
 			RelativeHumidity,
 			Wind,
 			ShortWaveRadiation,
@@ -324,6 +330,7 @@ func GroupsByRole(r Role) []Group {
 	if r == Public {
 		return []Group{
 			AirTemperature,
+			AtmosphericPressure,
 			RelativeHumidity,
 			WindDirection,
 			WindSpeed,
