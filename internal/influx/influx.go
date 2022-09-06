@@ -40,6 +40,7 @@ var (
 	// measurements.
 	groupRegexpMap = map[browser.Group]*regexp.Regexp{
 		browser.AirTemperature:                               regexp.MustCompile(`air_t`),
+		browser.AtmosphericPressure:                          regexp.MustCompile(`air_p`),
 		browser.RelativeHumidity:                             regexp.MustCompile(`air_rh`),
 		browser.SoilTemperature:                              regexp.MustCompile(`^st_.*|_st_.*$`),
 		browser.SoilTemperatureDepth00:                       regexp.MustCompile(`st_.*00_.*$`),
