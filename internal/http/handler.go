@@ -21,8 +21,9 @@ var (
 
 // Handler serves various HTTP endpoints.
 type Handler struct {
-	mux     *http.ServeMux
-	devMode bool
+	mux       *http.ServeMux
+	devMode   bool
+	plausible bool
 
 	db             browser.Database
 	stationService browser.StationService
@@ -93,6 +94,12 @@ func WithStationService(s browser.StationService) Option {
 func WithDevMode(mode bool) Option {
 	return func(h *Handler) {
 		h.devMode = mode
+	}
+}
+
+func WithPlausible(use bool) Option {
+	return func(h *Handler) {
+		h.plausible = use
 	}
 }
 
