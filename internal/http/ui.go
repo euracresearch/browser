@@ -65,6 +65,7 @@ func (h *Handler) handleIndex() http.HandlerFunc {
 			Token       string
 			StartDate   string
 			EndDate     string
+			Plausible   bool
 		}{
 			data,
 			browser.GroupsByRole(user.Role),
@@ -75,6 +76,7 @@ func (h *Handler) handleIndex() http.HandlerFunc {
 			middleware.XSRFTokenPlaceholder,
 			time.Now().AddDate(0, -6, 0).Format("2006-01-02"),
 			time.Now().Format("2006-01-02"),
+			h.plausible,
 		})
 		if err != nil {
 			Error(w, err, http.StatusInternalServerError)
@@ -112,18 +114,20 @@ func (h *Handler) handleHello() http.HandlerFunc {
 		}
 
 		err = tmpl.Execute(w, struct {
-			Data     browser.Stations
-			User     *browser.User
-			Language string
-			Path     string
-			Token    string
-			Content  template.HTML
+			Data      browser.Stations
+			User      *browser.User
+			Language  string
+			Path      string
+			Token     string
+			Plausible bool
+			Content   template.HTML
 		}{
 			data,
 			user,
 			lang,
 			name,
 			middleware.XSRFTokenPlaceholder,
+			h.plausible,
 			template.HTML(license),
 		})
 		if err != nil {
@@ -175,16 +179,18 @@ func (h *Handler) handleStaticPage() http.HandlerFunc {
 		}
 
 		err = tmpl.Execute(w, struct {
-			Data     browser.Stations
-			User     *browser.User
-			Language string
-			Path     string
-			Content  template.HTML
+			Data      browser.Stations
+			User      *browser.User
+			Language  string
+			Path      string
+			Plausible bool
+			Content   template.HTML
 		}{
 			data,
 			user,
 			lang,
 			name,
+			h.plausible,
 			template.HTML(p),
 		})
 		if err != nil {

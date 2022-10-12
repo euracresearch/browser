@@ -66,6 +66,7 @@ func main() {
 		googleSecret      = fs.String("google.secret", "", "Google OAuth2 secret.")
 		googleRedirect    = fs.String("google.redirect", "", "Google OAuth2 redirect URL.")
 		healthzToken      = fs.String("health.token", "", "Token for the health check endpoint")
+		usePlausible      = fs.Bool("plausible", false, "Use plausible.io for tracking statistics")
 		devMode           = fs.Bool("dev", false, "Run in development mode.")
 		_                 = fs.String("config", "", "Config file (optional)")
 	)
@@ -119,6 +120,7 @@ func main() {
 		http.WithDatabase(db),
 		http.WithStationService(stationService),
 		http.WithDevMode(*devMode),
+		http.WithPlausible(*usePlausible),
 	)
 
 	// Initialize authentication handler.
