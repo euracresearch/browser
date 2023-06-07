@@ -28,7 +28,7 @@ var publicAllowed = []string{
 	"Snow_Height_Avg",
 }
 
-// maintenance is a list of measurement names only intressting for technicians.
+// maintenance is a list of measurement names only interesting for technicians.
 var maintenance = []string{
 	"RECORD",
 	"Batt_V_Avg",
@@ -175,4 +175,32 @@ var maintenance = []string{
 	"LWmV_Max",
 	"LWmV_Min",
 	"LWmV_Std",
+	"Bar_Q_Avg",
+	"Bar_Q_Std",
+	"Bar_T_Avg",
+	"Bar_T_Std",
+	"bf5_htr_enabled_tot",
+	"Box_RH_Ref_Avg",
+	"Box_RH_Ref_bk_Avg",
+	"Box_RH_Ref_bk_Std",
+	"Box_RH_Ref_Std",
+	"Pluvio_PV_Batt_V_Avg",
+	"Pluvio_PV_Batt_V_Std",
+	"Pluvio_PV_Batt_V0_Avg",
+	"Pluvio_PV_Batt_V0_Std",
+	"Pluvio_PV_Load_V_Avg",
+	"Pluvio_PV_Load_V_Std",
+	"Pluvio_PV_Load_V0_Avg",
+	"Pluvio_PV_Load_V0_Std",
+	"Pluvio_PV_Panel_V_Avg",
+	"Pluvio_PV_Panel_V_Std",
+	"Pluvio_PV_Panel_V0_Avg",
+	"Pluvio_PV_Panel_V0_Std",
+	"Precip_Heater_V_Avg",
+	"Precip_Heater_V_Std",
+	"SHF_old_Avg",
+	"SHF_old_Std",
+	"Snow_Dist_Avg",
+	"Snow_Dist0_Avg",
+	"Snow_Quality_Avg",
 }
