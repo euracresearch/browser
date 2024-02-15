@@ -220,6 +220,16 @@ func (db *DB) Maintenance(ctx context.Context) ([]string, error) {
 	if user.Role != browser.FullAccess && !user.License {
 		return []string{}, nil
 	}
+
+	for _, m := range db.groupMeasurementsCache[browser.NoGroup] {
+		for _, mm := range maintenance {
+			if mm != m {
+				maintenance = append(maintenance, mm)
+			}
+
+		}
+	}
+
 	return maintenance, nil
 }
 
