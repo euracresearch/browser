@@ -23,6 +23,24 @@ import (
 	"github.com/influxdata/influxql"
 )
 
+func TestGrouping(t *testing.T) {
+	db, err := NewDB(&mock.InfluxClient{
+		QueryFn: func(q client.Query) (*client.Response, error) {
+			return responseFromFile(t, "grouping.json")
+		},
+	}, "testdb")
+	if err != nil {
+		t.Fatalf("TestQuery: error in NewDB: %v", err)
+	}
+
+	want := []string{"air_t_avg", "air_t_sh", "air_t_sh_med", "air_t_std", "snow_air_t", "snow_air_t_avg", "snow_air_t_sdmed", "snow_air_t_sdmed_std", "snow_air_t_std"}
+	diff := cmp.Diff(want, db.groupMeasurementsCache[browser.AirTemperature])
+	if diff != "" {
+		t.Fatalf("mismatch (-want +got):\n%s", diff)
+	}
+
+}
+
 func TestQuery(t *testing.T) {
 	dbName := "testdb"
 
