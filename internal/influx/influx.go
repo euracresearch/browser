@@ -108,6 +108,7 @@ type DB struct {
 	mu                     sync.RWMutex // guards the fields below
 	stationGroupsCache     map[int64][]browser.Group
 	groupMeasurementsCache map[browser.Group][]string // will contain only measurements which are not maintenance
+	maintenance            []string                   // will contain the default maintenance measurements + the ones which are in NoGroup
 }
 
 // NewDB returns a new instance of DB and initializes the internal caches and
@@ -136,13 +137,18 @@ func (db *DB) loadCache() error {
 		return err
 	}
 
+	var maint []string
+	for _, m := range maintenance {
+		maint = browser.AppendStringIfMissing(maint, m)
+	}
+
 	gCache := make(map[int64][]browser.Group)
 	mCache := make(map[browser.Group][]string)
 	for _, result := range resp.Results {
 		for _, series := range result.Series {
 			// add series name to list of measurements if it doesn't belong to
 			// maintenance.
-			if isAllowed(series.Name, maintenance) {
+			if isAllowed(series.Name, maint) {
 				continue
 			}
 
@@ -160,14 +166,32 @@ func (db *DB) loadCache() error {
 				}
 			}
 
-			mCache[g] = browser.AppendStringIfMissing(mCache[g], series.Name)
-			mCache[sg] = browser.AppendStringIfMissing(mCache[sg], series.Name)
+			if g != browser.NoGroup {
+				mCache[g] = browser.AppendStringIfMissing(mCache[g], series.Name)
+			}
+
+			if sg != browser.NoGroup {
+				mCache[sg] = browser.AppendStringIfMissing(mCache[sg], series.Name)
+			}
+
+			if g == browser.NoGroup && sg == browser.NoGroup {
+				mCache[browser.NoGroup] = browser.AppendStringIfMissing(mCache[browser.NoGroup], series.Name)
+			}
+
 		}
 	}
+
+	noGroup := mCache[browser.NoGroup]
+	for _, m := range noGroup {
+		maint = browser.AppendStringIfMissing(maint, m)
+	}
+
+	sort.Strings(maint)
 
 	db.mu.Lock()
 	db.stationGroupsCache = gCache
 	db.groupMeasurementsCache = mCache
+	db.maintenance = maint
 	db.mu.Unlock()
 
 	log.Println("influx: caches initialized")
@@ -186,6 +210,7 @@ func matchGroupByType(label string, t browser.GroupType) browser.Group {
 		if re.MatchString(label) {
 			return group
 		}
+
 	}
 
 	return browser.NoGroup
@@ -220,7 +245,11 @@ func (db *DB) Maintenance(ctx context.Context) ([]string, error) {
 	if user.Role != browser.FullAccess && !user.License {
 		return []string{}, nil
 	}
-	return maintenance, nil
+
+	db.mu.RLock()
+	defer db.mu.RUnlock()
+
+	return db.maintenance, nil
 }
 
 // cancelled checks if the given context was cancelled.
@@ -375,7 +404,7 @@ func (db *DB) seriesQuery(ctx context.Context, filter *browser.SeriesFilter) []q
 	// If the users has full access and the filter contains maintenance
 	// measurements add them to the slice.
 	if user.Role == browser.FullAccess && user.License {
-		measurements = appendMaintenance(measurements, filter.Maintenance...)
+		measurements = db.appendMaintenance(measurements, filter.Maintenance...)
 	}
 
 	for _, measure := range measurements {
@@ -399,9 +428,12 @@ func (db *DB) seriesQuery(ctx context.Context, filter *browser.SeriesFilter) []q
 
 // appendMaintenance appends the given labels to s if the label is present in
 // the maintenance slice.
-func appendMaintenance(s []string, label ...string) []string {
+func (db *DB) appendMaintenance(s []string, label ...string) []string {
+	db.mu.RLock()
+	defer db.mu.RUnlock()
+
 	for _, l := range label {
-		for _, m := range maintenance {
+		for _, m := range db.maintenance {
 			if strings.EqualFold(l, m) {
 				s = append(s, strings.ToLower(l))
 			}
@@ -426,7 +458,7 @@ func (db *DB) Query(ctx context.Context, filter *browser.SeriesFilter) *browser.
 		measures = db.parseMeasurements(ctx, filter)
 	}
 
-	measures = appendMaintenance(measures, filter.Maintenance...)
+	measures = db.appendMaintenance(measures, filter.Maintenance...)
 
 	c := []string{"station", "landuse", "altitude as elevation", "latitude", "longitude"}
 	c = append(c, measures...)
