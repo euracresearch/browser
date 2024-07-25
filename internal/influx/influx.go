@@ -100,6 +100,22 @@ var (
 	}
 )
 
+// Rules
+// package main
+// import (
+//     "fmt"
+//     "strings"
+// )
+
+// func main() {
+//     str := "air_tThisIsATestString"
+//     fmt.Println(checkString(str)) // true if str matches the conditions, false otherwise
+// }
+
+// func checkString(str string) bool {
+//     return strings.HasPrefix(str, "air_t") && !strings.Contains(str, "sample") && !strings.Contains(str, "sh")
+// }
+
 // DB holds information for communicating with InfluxDB.
 type DB struct {
 	client   client.Client
