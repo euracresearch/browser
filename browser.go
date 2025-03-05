@@ -169,13 +169,14 @@ type Role string
 
 const (
 	Public      Role = "Public"
+	Admin       Role = "Admin"
 	FullAccess  Role = "FullAccess"
 	External    Role = "External"
 	DefaultRole Role = Public
 )
 
 // Roles is a list of all supported Roles.
-var Roles = []Role{Public, External, FullAccess}
+var Roles = []Role{Public, Admin, External, FullAccess}
 
 func (r *Role) UnmarshalJSON(b []byte) error {
 	var s string
@@ -190,14 +191,17 @@ func (r *Role) UnmarshalJSON(b []byte) error {
 // NewRole returns a new role from the given string. If the string cannot be
 // parsed to a role the default role will be returned.
 func NewRole(s string) Role {
-	switch s {
+	switch strings.ToLower(s) {
 	default:
 		return DefaultRole
 
-	case "External":
+	case "admin":
+		return Admin
+
+	case "external":
 		return External
 
-	case "FullAccess":
+	case "fullaccess":
 		return FullAccess
 	}
 }
