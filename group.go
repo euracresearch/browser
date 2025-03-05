@@ -140,6 +140,8 @@ func (g Group) String() string {
 		return "Intensity"
 	case PhotosyntheticallyActiveRadiationTotalIncoming:
 		return "Total Incoming"
+	case PhotosyntheticallyActiveRadiationTotalOutgoing:
+		return "Total Outgoing"
 	case PhotosyntheticallyActiveRadiationDiffuse:
 		return "Diffuse Incoming"
 	case PhotosyntheticallyActiveRadiationAtSoilLevel:
@@ -237,6 +239,7 @@ func (g Group) SubGroups() []Group {
 	case PhotosyntheticallyActiveRadiation:
 		return []Group{
 			PhotosyntheticallyActiveRadiationTotalIncoming,
+			PhotosyntheticallyActiveRadiationTotalOutgoing,
 			PhotosyntheticallyActiveRadiationDiffuse,
 			PhotosyntheticallyActiveRadiationAtSoilLevel,
 		}
@@ -316,6 +319,7 @@ func GroupsByType(t GroupType) []Group {
 			PrecipitationTotal,
 			PrecipitationIntensity,
 			PhotosyntheticallyActiveRadiationTotalIncoming,
+			PhotosyntheticallyActiveRadiationTotalOutgoing,
 			PhotosyntheticallyActiveRadiationDiffuse,
 			PhotosyntheticallyActiveRadiationAtSoilLevel,
 			ShortWaveRadiationIncoming,
