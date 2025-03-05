@@ -213,7 +213,6 @@ type User struct {
 	Provider string
 	License  bool
 	Role     Role
-	isAdmin  bool
 }
 
 // Valid determines if a user is valid. A valid user must have a username, name

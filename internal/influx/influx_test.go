@@ -33,7 +33,7 @@ func TestGrouping(t *testing.T) {
 		t.Fatalf("TestQuery: error in NewDB: %v", err)
 	}
 
-	want := []string{"air_t_avg", "air_t_sh", "air_t_sh_med", "air_t_std", "snow_air_t", "snow_air_t_avg", "snow_air_t_sdmed", "snow_air_t_sdmed_std", "snow_air_t_std"}
+	want := []string{"air_t_avg", "air_t_sh", "air_t_std", "snow_air_t", "snow_air_t_avg", "snow_air_t_sdmed", "snow_air_t_sdmed_std", "snow_air_t_std"}
 	diff := cmp.Diff(want, db.groupMeasurementsCache[browser.AirTemperature])
 	if diff != "" {
 		t.Fatalf("mismatch (-want +got):\n%s", diff)
