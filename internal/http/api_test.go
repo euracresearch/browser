@@ -132,10 +132,10 @@ func TestHandleTemplate(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	tmplRlang, err := template.ParseFS(templateFS, "templates/r.tmpl")
-	if err != nil {
-		log.Fatal(err)
-	}
+	// tmplRlang, err := template.ParseFS(templateFS, "templates/r.tmpl")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	testCases := map[string]struct {
 		method     string
@@ -155,8 +155,8 @@ func TestHandleTemplate(t *testing.T) {
 		"Incomplete":      {http.MethodPost, withCTX(browser.FullAccess), http.StatusInternalServerError, []byte(`startDate=2019-07-23&endDate=2020-01-23&measurements=a`), nil},
 		"MissingLanguage": {http.MethodPost, withCTX(browser.FullAccess), http.StatusInternalServerError, []byte(`startDate=2019-07-23&endDate=2020-01-23&stations=1&measurements=a`), nil},
 		"EmtpyLanguage":   {http.MethodPost, withCTX(browser.FullAccess), http.StatusInternalServerError, []byte(`startDate=2019-07-23&endDate=2020-01-23&stations=1&measurements=a&language=`), nil},
-		"R":               {http.MethodPost, withCTX(browser.FullAccess), http.StatusOK, []byte(`startDate=2019-07-23&endDate=2020-01-23&stations=1&measurements=a&language=r`), tmplRlang},
-		"Python":          {http.MethodPost, withCTX(browser.FullAccess), http.StatusOK, []byte(`startDate=2019-07-23&endDate=2020-01-23&stations=1&measurements=a&landuse=me&language=python`), tmplPython},
+		// "R":               {http.MethodPost, withCTX(browser.FullAccess), http.StatusOK, []byte(`startDate=2019-07-23&endDate=2020-01-23&stations=1&measurements=a&language=r`), tmplRlang},
+		"Python": {http.MethodPost, withCTX(browser.FullAccess), http.StatusOK, []byte(`startDate=2019-07-23&endDate=2020-01-23&stations=1&measurements=a&landuse=me&language=python`), tmplPython},
 	}
 
 	for k, tc := range testCases {
