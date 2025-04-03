@@ -80,10 +80,10 @@ func (h *Handler) handleCodeTemplate() http.HandlerFunc {
 		log.Fatal(err)
 	}
 
-	tmpl.rlang, err = template.ParseFS(templateFS, "templates/r.tmpl")
-	if err != nil {
-		log.Fatal(err)
-	}
+	// tmpl.rlang, err = template.ParseFS(templateFS, "templates/r.tmpl")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -99,9 +99,9 @@ func (h *Handler) handleCodeTemplate() http.HandlerFunc {
 		case "python":
 			t = tmpl.python
 			ext = "py"
-		case "r":
-			t = tmpl.rlang
-			ext = "r"
+		// case "r":
+		// 	t = tmpl.rlang
+		// 	ext = "r"
 		default:
 			Error(w, browser.ErrInternal, http.StatusInternalServerError)
 			return

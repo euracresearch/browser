@@ -64,7 +64,7 @@
 										</select>
 										<input type="checkbox" id="showMaintSTD"> <span class="small-font">{{T "Show standard deviations" $lang}}</span>
 									</div>
-									
+
 									{{end -}}
 								</div>
 								<div class="col-lg-4">
@@ -117,7 +117,7 @@
 											<input class="form-check-input" type="radio" name="format" id="longTableFormat" value="long" checked>
   											<label class="form-check-label" for="longTableFormat">
 									  			{{T "CSV Long table format" $lang}}
-											</label> &mdash; 
+											</label> &mdash;
 											<input class="form-check-input" type="radio" name="format" id="wideTableFormat" value="wide">
   											<label class="form-check-label" for="wideTableFormat">
     											{{T "CSV Wide table format" $lang}}
@@ -144,9 +144,7 @@
 												$("#downloadPY").click(function() {
 													DownloadCodeTemplate("python");
 												});
-												$("#downloadR").click(function() {
-													DownloadCodeTemplate("r");
-												});
+
 											});
 										</script>
 										<input type="hidden" name="language" value="" id="language">
@@ -156,7 +154,6 @@
 											</button>
 											<ul class="dropdown-menu">
 												<li><a href="#" id="downloadPY">Python</a></li>
-												<li><a href="#" id="downloadR">R</a></li>
 											</ul>
 										</div>
 										{{end}}
